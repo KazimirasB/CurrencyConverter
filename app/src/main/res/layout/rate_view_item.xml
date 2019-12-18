@@ -8,22 +8,28 @@
         <variable
             name="item"
             type="lt.akb.currency.database.Rate" />
+        <variable
+            name="adapter"
+            type="lt.akb.currency.converter.RatesAdapter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clickView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin">
+        android:layout_marginBottom="@dimen/margin"
+        android:onClick="@{() -> adapter.setBaseRate(item)}">
 
         <ImageView
             android:id="@+id/flagImageView"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
             android:scaleType="fitCenter"
-            app:setWebImage="@{item.country}"
+            android:layout_margin="@dimen/margin"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:setWebImage="@{item.country}" />
 
         <TextView
             android:id="@+id/currencyTextView"
@@ -32,7 +38,7 @@
             android:layout_height="wrap_content"
             android:text="@{item.currency}"
             app:layout_constraintStart_toEndOf="@+id/flagImageView"
-            app:layout_constraintTop_toTopOf="@+id/flagImageView"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="EUR" />
 
         <TextView
@@ -41,22 +47,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{item.name}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/flagImageView"
             app:layout_constraintTop_toBottomOf="@+id/currencyTextView"
             tools:text="Test text" />
 
-        <EditText
-            android:id="@+id/valueEditText"
+        <TextView
+            android:id="@+id/valueTextView"
             style="@style/listItemValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{item.isBase}"
-            android:focusable="@{item.isBase}"
-            android:inputType="numberDecimal"
+            android:text="@{adapter.calculateValue(item)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="1122.33" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

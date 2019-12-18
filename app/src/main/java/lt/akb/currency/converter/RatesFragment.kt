@@ -1,15 +1,21 @@
 package lt.akb.currency.converter
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.converter_fragment.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import lt.akb.currency.R
+import kotlin.concurrent.fixedRateTimer
 
 class RatesFragment : Fragment() {
 
@@ -22,7 +28,7 @@ class RatesFragment : Fragment() {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
     }
 
-    private val ratesAdapter: RatesAdapter  by lazy {
+    private val ratesAdapter: RatesAdapter by lazy {
         RatesAdapter(context!!, viewModel)
     }
 
@@ -30,13 +36,16 @@ class RatesFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        viewModel.ratesLive.observe(this, Observer { rates ->
+         viewModel.ratesLive.observe(this, Observer { rates ->
             viewModel?.let {
-                if(!viewModel.isStop)
+                if (rates.isNotEmpty()) {
+                    viewModel.rate = rates[0]
                     ratesAdapter.setList(rates)
-           }
+                    startTimer()
+                }
+            }
         })
-    }
+   }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,6 +63,20 @@ class RatesFragment : Fragment() {
         }
 
         viewModel.getRates()
+    }
+
+    private fun startTimer() {
+        fixedRateTimer("timer", false, 1000L, 1000L) {
+            lifecycleScope.launch{withContext(Dispatchers.Main){updateRates()}}
+        }
+    }
+
+    private fun updateRates(){
+        viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
+            result?.let {
+                ratesAdapter.updateRates(1)
+            }
+        })
     }
 
 

@@ -12,22 +12,24 @@ import java.util.*
 
 class ApiClient(private val appRepository: AppRepository) {
 
-    private fun getWebApi(): WebApi {
+    private val webApiUpdate: WebApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(appRepository.getBaseUrl())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build().create(WebApi::class.java)
+    }
 
-        var retrofit: Retrofit = Retrofit.Builder()
+    private val webApiRates: WebApi by lazy {
+        Retrofit.Builder()
             .baseUrl(appRepository.getBaseUrl())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        return retrofit.create(WebApi::class.java)
-
+            .build().create(WebApi::class.java)
     }
 
     fun getRates(currencyMap: HashMap<String, String>) {
 
-        val call = getWebApi().getRates()
-
-        call.enqueue(
+        webApiRates.getRates().enqueue(
             object : Callback<RatesResult> {
                 override fun onResponse(call: Call<RatesResult>, response: Response<RatesResult>) {
 
@@ -44,48 +46,25 @@ class ApiClient(private val appRepository: AppRepository) {
                                     key,
                                     countryCode,
                                     currency.displayName,
-                                    body.rates[key]!!.toBigDecimal(),
-                                    false
+                                    body.rates[key]!!.toBigDecimal()
+                                    , 0
                                 )
                             )
                         }
                         appRepository.refreshRates(rates)
-                    } else error("${response.code()} ${response.message()}")
+                    } else throw Throwable("${response.code()} ${response.message()}")
                 }
 
                 override fun onFailure(call: Call<RatesResult>?, t: Throwable?) {
-                    //    error("${t?.message}")
+                    t?.let { throw t }
                 }
             }
         )
     }
 
-    fun refreshRates() {
-
-        val call = getWebApi().getRates()
-
-        call.enqueue(
-            object : Callback<RatesResult> {
-                override fun onResponse(call: Call<RatesResult>, response: Response<RatesResult>) {
-
-                    if (response.isSuccessful) {
-                        val body = response.body()!!
-                        for (currency in body.rates.keys) {
-                            appRepository.updateValue(
-                                currency,
-                                body.rates[currency]!!.toBigDecimal()
-                            )
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<RatesResult>?, t: Throwable?) {
-
-                }
-            }
-        )
+    suspend fun updateRates(): RatesResult {
+        return webApiUpdate.getRatesUpdate()
     }
-
-
 }
+
 

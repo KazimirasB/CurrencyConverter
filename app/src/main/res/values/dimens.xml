@@ -3,6 +3,7 @@
     <dimen name="margin">8dp</dimen>
     <dimen name="margin_small">4dp</dimen>
     <dimen name="title">16dp</dimen>
-    <dimen name="sub_title">12dp</dimen>
-    <dimen name="value">20dp</dimen>
+    <dimen name="sub_title">10dp</dimen>
+    <dimen name="value">16dp</dimen>
+    <dimen name="icon_size">48dp</dimen>
 </resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="item"
+            type="lt.akb.currency.database.Rate" />
+        <variable
+            name="adapter"
+            type="lt.akb.currency.converter.RatesAdapter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clickView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin"
+        android:focusable="true"
+        android:focusableInTouchMode="true" >
+
+        <ImageView
+            android:id="@+id/flagImageView"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:scaleType="fitCenter"
+            android:layout_margin="@dimen/margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_empty_icon"
+            app:setWebImage="@{item.country}" />
+
+        <TextView
+            android:id="@+id/currencyTextView"
+            style="@style/listItemTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.currency}"
+            app:layout_constraintStart_toEndOf="@+id/flagImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="EUR" />
+
+        <TextView
+            android:id="@+id/nameTextView"
+            style="@style/listItemSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.name}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/flagImageView"
+            app:layout_constraintTop_toBottomOf="@+id/currencyTextView"
+            tools:text="Test text" />
+
+        <EditText
+            android:id="@+id/valueEditText"
+            style="@style/listItemValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onTextChanged="@{adapter::setRateValue}"
+            android:text="@{item.getValueString()}"
+            android:inputType="number"
+            android:focusedByDefault="false"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1122.33" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

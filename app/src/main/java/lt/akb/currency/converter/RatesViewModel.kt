@@ -7,40 +7,37 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import lt.akb.currency.R
-import lt.akb.currency.database.AppDatabase
 import lt.akb.currency.database.Rate
 import lt.akb.currency.main.AppRepository
-import kotlin.concurrent.fixedRateTimer
 import java.math.BigDecimal
 
-class RatesViewModel (application: Application) : AndroidViewModel(application) {
+fun BigDecimal.toDecimalString() = "${setScale(2, BigDecimal.ROUND_CEILING).stripTrailingZeros()}"
 
-    var rate: Rate = Rate("EUR", "ES","" , BigDecimal.valueOf(1), true)
-    var amount = BigDecimal(100)
+class RatesViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+
+    var rate: Rate = Rate("EUR", "ES", "European Union euro", BigDecimal.ONE, 1)
+    var amount = BigDecimal.ONE
     private var currencyMap: HashMap<String, String>
-    var isNew: Boolean = true
     var ratesLive: LiveData<List<Rate>>
-    private val appRepository: AppRepository
-    var isStop: Boolean = false
+    private val appRepository: AppRepository = AppRepository(application)
 
     init {
-        val rateDao = AppDatabase.getInstance(application).getRatesDao()
-        appRepository = AppRepository(rateDao)
         ratesLive = appRepository.getRatesLive()
-        currencyMap = Gson().fromJson(application.getString(R.string.currencies_json), object : TypeToken<HashMap<String, String>>() {}.type
+        currencyMap = Gson().fromJson(
+            application.getString(R.string.currencies_json),
+            object : TypeToken<HashMap<String, String>>() {}.type
         )
     }
 
     fun getRates() {
-
         appRepository.getRates(currencyMap)
-
-     //   fixedRateTimer("timer", false, 0L,  1000) {
-   //         if (isStop) cancel()
-            appRepository.refreshRates()
-    //    }
-
     }
+
+    fun updateRates() = appRepository.getRatesUpdate()
+
+    fun updateRates(currencyRates:List<Rate>) = appRepository.getRatesUpdate(currencyRates)
 
     override fun onCleared() {
         super.onCleared()
@@ -48,12 +45,17 @@ class RatesViewModel (application: Application) : AndroidViewModel(application) 
     }
 
     fun calculateValue(item: Rate): String {
-        return "${item.value * amount / rate.value}"
+        item.value = calculateAmount(item)
+        return item.value.toDecimalString()
     }
 
-    fun setSelectedRate(rate: Rate) {
-        this.rate.isBase = false
-        rate.isBase = true
-        appRepository.updateRates(arrayListOf(this.rate, rate))
+    private fun calculateAmount(item: Rate): BigDecimal {
+        return item.currencyRate.multiply(amount)
+            .divide(rate.currencyRate, 2, BigDecimal.ROUND_CEILING)
+    }
+
+    fun setBaseRate(rate: Rate) {
+        amount = rate.value
+        this.rate = rate
     }
 }

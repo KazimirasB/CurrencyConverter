@@ -11,20 +11,28 @@
     <style name="listItemTitle" parent="android:Widget.Holo.Light.TextView">
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textSize">@dimen/title</item>
+        <item name="android:layout_marginLeft">@dimen/margin</item>
+        <item name="android:layout_marginStart">@dimen/margin</item>
+        <item name="android:layout_marginTop">@dimen/margin_small</item>
         <item name="android:padding">@dimen/margin_small</item>
     </style>
 
     <style name="listItemSubTitle" parent="android:Widget.Holo.Light.TextView">
         <item name="android:textColor">@color/gray</item>
         <item name="android:textSize">@dimen/sub_title</item>
+        <item name="android:layout_marginLeft">@dimen/margin</item>
+        <item name="android:layout_marginStart">@dimen/margin</item>
         <item name="android:padding">@dimen/margin_small</item>
+        <item name="android:layout_marginBottom">@dimen/margin_small</item>
     </style>
 
     <style name="listItemValue" parent="android:Widget.Holo.Light.TextView">
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textSize">@dimen/value</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginRight">@dimen/margin</item>
+        <item name="android:layout_marginEnd">@dimen/margin</item>
         <item name="android:padding">@dimen/margin_small</item>
+        <item name="android:background">@drawable/background_underline</item>
     </style>
 
 </resources>
