@@ -1,7 +1,6 @@
 package lt.akb.currency.converter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +17,7 @@ import lt.akb.currency.R
 import kotlin.concurrent.fixedRateTimer
 
 class RatesFragment : Fragment() {
+    private var isStop: Boolean = false
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
     }
@@ -30,15 +30,15 @@ class RatesFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-         viewModel.ratesLive.observe(this, Observer { rates ->
+        viewModel.ratesLive.observe(this, Observer { rates ->
             viewModel?.let {
                 if (rates.isNotEmpty()) {
-                     ratesAdapter.setList(rates)
+                    ratesAdapter.setList(rates)
                     startTimer()
                 }
             }
         })
-   }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,22 +54,32 @@ class RatesFragment : Fragment() {
             adapter = ratesAdapter
             layoutManager = LinearLayoutManager(activity)
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
         viewModel.getRates()
     }
 
     private fun startTimer() {
+        isStop = false
         fixedRateTimer("timer", false, 1000L, 1000L) {
-            lifecycleScope.launch{withContext(Dispatchers.Main){updateRates()}}
+            if (isStop) cancel()
+            lifecycleScope.launch { withContext(Dispatchers.Main) { updateRates() } }
         }
     }
 
-    private fun updateRates(){
+    private fun updateRates() {
         viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
             result?.let {
-                ratesAdapter.updateRates(1)
+                ratesAdapter.refreshRates(1)
             }
         })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isStop = true
     }
 
 

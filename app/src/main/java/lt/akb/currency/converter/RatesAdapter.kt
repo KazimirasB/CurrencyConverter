@@ -86,7 +86,7 @@ class RatesAdapter(
     fun setList(currencyRates: List<Rate>) {
         this.currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         viewModel.setBaseRate(currencyRates[0])
-       notifyDataSetChanged()
+        notifyDataSetChanged()
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -96,7 +96,7 @@ class RatesAdapter(
         else if (s.toString().matches(Regex("[0-9]+")))
             viewModel.amount = BigDecimal(s.toString())
 //TODO
-        updateRates(1)
+        refreshRates(1)
     }
 
     fun setBaseRate(rate: Rate) {
@@ -105,14 +105,14 @@ class RatesAdapter(
         viewModel.setBaseRate(rate)
         currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         notifyItemMoved(oldPosition, 0)
-        updateRates(0)
+        refreshRates(0)
     }
 
     fun calculateValue(item: Rate): String {
         return viewModel.calculateValue(item)
     }
 
-    fun updateRates(positionStart: Int) {
+    fun refreshRates(positionStart: Int) {
         Handler().post { notifyItemRangeChanged(positionStart, currencyRates.size, 0) }
     }
 
