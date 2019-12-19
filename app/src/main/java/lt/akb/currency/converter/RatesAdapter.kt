@@ -1,6 +1,5 @@
 package lt.akb.currency.converter
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Handler
@@ -48,7 +47,7 @@ fun setWebImage(view: ImageView, countryCode: String?) {
 }
 
 class RatesAdapter(
-    context: Context,
+    inflater: LayoutInflater,
     private val viewModel: RatesViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -56,7 +55,6 @@ class RatesAdapter(
     private val factory = RateHolderFactory()
 
     init {
-        val inflater = LayoutInflater.from(context)
         factory.registerContainer(RateHolderEditContainer(this, inflater))
         factory.registerContainer(RateHolderViewContainer(this, inflater))
     }
@@ -87,7 +85,8 @@ class RatesAdapter(
 
     fun setList(currencyRates: List<Rate>) {
         this.currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
-        notifyDataSetChanged()
+        viewModel.setBaseRate(currencyRates[0])
+       notifyDataSetChanged()
     }
 
     @Suppress("UNUSED_PARAMETER")

@@ -18,18 +18,12 @@ import lt.akb.currency.R
 import kotlin.concurrent.fixedRateTimer
 
 class RatesFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = RatesFragment()
-    }
-
-
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
     }
 
     private val ratesAdapter: RatesAdapter by lazy {
-        RatesAdapter(context!!, viewModel)
+        RatesAdapter(LayoutInflater.from(context), viewModel)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +33,7 @@ class RatesFragment : Fragment() {
          viewModel.ratesLive.observe(this, Observer { rates ->
             viewModel?.let {
                 if (rates.isNotEmpty()) {
-                    viewModel.rate = rates[0]
-                    ratesAdapter.setList(rates)
+                     ratesAdapter.setList(rates)
                     startTimer()
                 }
             }

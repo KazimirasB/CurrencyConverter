@@ -35,8 +35,6 @@ class RatesViewModel(
         appRepository.getRates(currencyMap)
     }
 
-    fun updateRates() = appRepository.getRatesUpdate()
-
     fun updateRates(currencyRates:List<Rate>) = appRepository.getRatesUpdate(currencyRates)
 
     override fun onCleared() {
