@@ -10,11 +10,11 @@ class RateHolderEdit(private val binding: RateEditItemBinding, adapter: RatesAda
         binding.adapter = adapter
     }
 
-    override fun bind(item: Rate) {
-        binding.item = item
+    override fun bind(rate: Rate) {
+        binding.item = rate
     }
 
     override fun bind(rate: Rate, payloads: MutableList<Any>) {
-        bind(rate)
+        binding.item = rate
     }
 }

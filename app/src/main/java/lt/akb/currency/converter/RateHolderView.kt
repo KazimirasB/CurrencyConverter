@@ -10,8 +10,8 @@ class RateHolderView(private val binding: RateViewItemBinding, private val adapt
         binding.adapter = adapter
     }
 
-    override fun bind(item: Rate) {
-        binding.item = item
+    override fun bind(rate: Rate) {
+        binding.item = rate
     }
 
     override fun bind(rate: Rate, payloads: MutableList<Any>) {

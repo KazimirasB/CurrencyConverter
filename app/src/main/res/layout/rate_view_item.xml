@@ -29,7 +29,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:setWebImage="@{item.country}" />
+            android:src="@drawable/ic_empty_icon"
+            app:setWebImage="@{item.country}"
+            android:contentDescription="@string/flag"/>
 
         <TextView
             android:id="@+id/currencyTextView"

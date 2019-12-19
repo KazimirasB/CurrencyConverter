@@ -1,6 +1,7 @@
 package lt.akb.currency.converter
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.converter_fragment.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import lt.akb.currency.R
 import kotlin.concurrent.fixedRateTimer
+
 
 class RatesFragment : Fragment() {
     private var isStop: Boolean = false
@@ -32,10 +36,8 @@ class RatesFragment : Fragment() {
 
         viewModel.ratesLive.observe(this, Observer { rates ->
             rates?.let {
-                if (rates.isNotEmpty()) {
-                    ratesAdapter.setList(rates)
-                    startTimer()
-                }
+                ratesAdapter.setList(rates)
+                startTimer()
             }
         })
     }
@@ -72,7 +74,7 @@ class RatesFragment : Fragment() {
     private fun updateRates() {
         viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
             result?.let {
-                ratesAdapter.refreshRates(1)
+                if(!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
             }
         })
     }

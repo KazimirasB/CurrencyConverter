@@ -65,7 +65,6 @@ class RatesAdapter(
         viewModel.setBaseRate(rate)
         currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         notifyItemMoved(oldPosition, 0)
-        refreshRates(0)
     }
 
     fun calculateValue(item: Rate): String {
@@ -73,9 +72,11 @@ class RatesAdapter(
     }
 
     fun refreshRates(positionStart: Int) {
-        Handler().post { notifyItemRangeChanged(positionStart, currencyRates.size, 0) }
-    }
+            Handler().post {
+                notifyItemRangeChanged(positionStart, currencyRates.size, 0)
+            }
 
+    }
 }
 
 
