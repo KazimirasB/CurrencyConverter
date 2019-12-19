@@ -30,12 +30,12 @@ class AppRepository(application: Application) {
         emit(apiClient.updateRates())
     }
 
-    fun getRatesUpdate(currencyRates:List<Rate>) = liveData(Dispatchers.IO) {
+    fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
 
         val response = apiClient.updateRates()
 
         response?.let {
-            val ratesMap =response.rates
+            val ratesMap = response.rates
             for (i in currencyRates.indices) {
                 val currencyRate = currencyRates[i]
                 ratesMap[currencyRate.currency]?.let {
