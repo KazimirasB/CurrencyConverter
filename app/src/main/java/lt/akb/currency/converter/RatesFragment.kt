@@ -35,10 +35,12 @@ class RatesFragment : Fragment() {
         setHasOptionsMenu(true)
 
         viewModel.ratesLive.observe(this, Observer { rates ->
-            rates?.let {
+            if (rates.size > 1) {
                 ratesAdapter.setList(rates)
                 startTimer()
-            }
+            } else
+                viewModel.getRates()
+
         })
     }
 
@@ -58,11 +60,6 @@ class RatesFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getRates()
-    }
-
     private fun startTimer() {
         isStop = false
         fixedRateTimer("timer", false, 1000L, 1000L) {
@@ -74,13 +71,13 @@ class RatesFragment : Fragment() {
     private fun updateRates() {
         viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
             result?.let {
-                if(!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
+                if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
             }
         })
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onDestroy() {
+        super.onDestroy()
         isStop = true
     }
 }
