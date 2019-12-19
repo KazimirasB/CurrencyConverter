@@ -1,7 +1,7 @@
 package lt.akb.currency.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import lt.akb.currency.R
 import lt.akb.currency.converter.RatesFragment
 
@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.container, RatesFragment())
                 .commitNow()
         }
+        Thread.setDefaultUncaughtExceptionHandler(RatesExceptionHandler(this))
     }
 
 }

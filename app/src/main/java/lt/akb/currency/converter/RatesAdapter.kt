@@ -1,50 +1,11 @@
 package lt.akb.currency.converter
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Picasso.LoadedFrom
-import com.squareup.picasso.Target
-import lt.akb.currency.R
 import lt.akb.currency.database.Rate
 import java.math.BigDecimal
-
-@BindingAdapter("setWebImage")
-fun setWebImage(view: ImageView, countryCode: String?) {
-    countryCode?.let {
-        Picasso.get().load("https://www.countryflags.io/${countryCode.toLowerCase()}/flat/64.png")
-            .error(R.drawable.ic_error_icon)
-            .into(object : Target {
-
-                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                }
-
-                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                    view.setImageDrawable(errorDrawable)
-                }
-
-                override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) {
-
-                    bitmap?.let {
-                        val squareBitmap =
-                            Bitmap.createBitmap(bitmap, 12, 12, 40, 40)
-                        val imageDrawable: RoundedBitmapDrawable =
-                            RoundedBitmapDrawableFactory.create(view.resources, squareBitmap)
-                        imageDrawable.isCircular = true
-                        view.setImageDrawable(imageDrawable)
-                    }
-                }
-            })
-    }
-}
 
 class RatesAdapter(
     inflater: LayoutInflater,
@@ -92,10 +53,9 @@ class RatesAdapter(
     @Suppress("UNUSED_PARAMETER")
     fun setRateValue(s: CharSequence, start: Int, before: Int, count: Int) {
         if (s.isEmpty())
-            viewModel.amount = BigDecimal.ZERO
-        else if (s.toString().matches(Regex("[0-9]+")))
-            viewModel.amount = BigDecimal(s.toString())
-//TODO
+            viewModel.setBaseAmount(BigDecimal.ZERO)
+        else if (s.toString().matches(Regex("^\\d*\\.?\\d*\$")))
+            viewModel.setBaseAmount(BigDecimal(s.toString()))
         refreshRates(1)
     }
 
