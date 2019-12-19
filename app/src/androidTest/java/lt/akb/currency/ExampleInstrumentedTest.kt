@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("lt.akb.currencyconvertor", appContext.packageName)
+        assertEquals("lt.akb.currency.converter", appContext.packageName)
     }
 }

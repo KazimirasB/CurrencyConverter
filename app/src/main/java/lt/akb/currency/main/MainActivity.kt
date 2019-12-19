@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.container, RatesFragment())
                 .commitNow()
         }
-      //  Thread.setDefaultUncaughtExceptionHandler(RatesExceptionHandler(this))
+        Thread.setDefaultUncaughtExceptionHandler(RatesExceptionHandler(this))
     }
 
 }

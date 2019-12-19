@@ -1,7 +1,6 @@
 package lt.akb.currency.converter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,9 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.converter_fragment.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +37,6 @@ class RatesFragment : Fragment() {
                 startTimer()
             } else
                 viewModel.getRates()
-
         })
     }
 

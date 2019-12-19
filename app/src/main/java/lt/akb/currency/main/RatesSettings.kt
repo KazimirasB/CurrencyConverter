@@ -19,14 +19,14 @@ class RatesSettings {
              imagesUrl = pref.getString(IMAGES_URL, "https://www.countryflags.io")!!
         }
 
-        fun updateRatesUrl(url:String){
-            ratesUrl=url
-            pref.edit().putString(RATES_URL, url).apply()
-        }
-
-        fun updateImagesUrl(url:String){
-            imagesUrl=url
-            pref.edit().putString(IMAGES_URL, url).apply()
-        }
+//        fun updateRatesUrl(url:String){
+//            ratesUrl=url
+//            pref.edit().putString(RATES_URL, url).apply()
+//        }
+//
+//        fun updateImagesUrl(url:String){
+//            imagesUrl=url
+//            pref.edit().putString(IMAGES_URL, url).apply()
+//        }
     }
 }

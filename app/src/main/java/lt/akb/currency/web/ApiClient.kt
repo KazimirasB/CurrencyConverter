@@ -52,11 +52,13 @@ class ApiClient(private val ratesRepository: RatesRepository) {
                             )
                         }
                         ratesRepository.refreshRates(rates)
-                    } else throw Throwable("${response.code()} ${response.message()}")
+                    } else
+                        //throw Throwable("${response.code()} ${response.message()}")
+                    throw Throwable("Network error")
                 }
 
                 override fun onFailure(call: Call<RatesResult>?, t: Throwable?) {
-                    t?.let { throw t }
+                    t?.let { Throwable("Network error") }
                 }
             }
         )

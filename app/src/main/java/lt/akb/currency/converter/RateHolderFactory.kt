@@ -26,6 +26,6 @@ class RateHolderFactory {
     }
 
     fun onBindViewHolder(holder: RecyclerView.ViewHolder, rate: Rate, payloads: MutableList<Any>) {
-        (holder as IRatesBind).bind(rate)
+        (holder as IRatesBind).bind(rate, payloads)
     }
 }
