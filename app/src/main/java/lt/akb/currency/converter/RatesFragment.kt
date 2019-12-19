@@ -31,7 +31,7 @@ class RatesFragment : Fragment() {
         setHasOptionsMenu(true)
 
         viewModel.ratesLive.observe(this, Observer { rates ->
-            viewModel?.let {
+            rates?.let {
                 if (rates.isNotEmpty()) {
                     ratesAdapter.setList(rates)
                     startTimer()
@@ -81,6 +81,4 @@ class RatesFragment : Fragment() {
         super.onPause()
         isStop = true
     }
-
-
 }

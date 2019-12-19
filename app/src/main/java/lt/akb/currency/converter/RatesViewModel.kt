@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import lt.akb.currency.R
 import lt.akb.currency.database.Rate
-import lt.akb.currency.main.AppRepository
+import lt.akb.currency.main.RatesRepository
 import java.math.BigDecimal
 
 fun BigDecimal.toDecimalString() = "${setScale(2, BigDecimal.ROUND_CEILING).stripTrailingZeros()}"
@@ -17,11 +17,11 @@ class RatesViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    var rate: Rate = Rate("EUR", "ES", "European Union euro", BigDecimal.ONE, 1)
-    var amount = BigDecimal.ONE
+    lateinit var rate: Rate
+    private var amount = BigDecimal.ONE
     private var currencyMap: HashMap<String, String>
     var ratesLive: LiveData<List<Rate>>
-    private val appRepository: AppRepository = AppRepository(application)
+    private val appRepository: RatesRepository = RatesRepository(application)
 
     init {
         ratesLive = appRepository.getRatesLive()
