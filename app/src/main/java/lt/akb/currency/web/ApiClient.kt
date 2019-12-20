@@ -8,13 +8,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ApiClient(private val ratesRepository: RatesRepository) {
 
-    private val webApiUpdate: WebApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(ratesRepository.getBaseUrl())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(WebApi::class.java)
-    }
-
     private val webApiRates: WebApi by lazy {
         Retrofit.Builder()
             .baseUrl(ratesRepository.getBaseUrl())
@@ -28,7 +21,7 @@ class ApiClient(private val ratesRepository: RatesRepository) {
     }
 
     suspend fun updateRates(): RatesResult {
-        return webApiUpdate.getRatesUpdate()
+        return webApiRates.getRatesUpdate()
     }
 }
 

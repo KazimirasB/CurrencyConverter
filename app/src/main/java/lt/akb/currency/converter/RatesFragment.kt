@@ -17,7 +17,6 @@ import kotlinx.coroutines.withContext
 import lt.akb.currency.R
 import kotlin.concurrent.fixedRateTimer
 
-
 class RatesFragment : Fragment() {
     private var isStop: Boolean = false
     private val viewModel: RatesViewModel by lazy {
@@ -30,14 +29,17 @@ class RatesFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         viewModel.ratesLive.observe(this, Observer { rates ->
             if (rates.size > 1) {
+                setRefresh(false)
                 ratesAdapter.setList(rates)
+                progress.visibility=View.GONE
                 startTimer()
-            } else
+            } else {
+                progress.visibility=View.VISIBLE
                 viewModel.observeRates(this::handelError)
+            }
         })
     }
 
@@ -81,6 +83,24 @@ class RatesFragment : Fragment() {
     private fun handelError(t: Throwable?) {
         t?.let {
             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+            progress.visibility=View.GONE
+            setRefresh(true)
+        }
+    }
+
+    private fun setRefresh(isRefresh : Boolean) {
+        when (isRefresh) {
+            true -> {
+                refreshImageView.visibility = View.VISIBLE
+                refreshImageView.setOnClickListener {
+                    progress.visibility=View.VISIBLE
+                    viewModel.observeRates(this::handelError)
+                }
+            }
+            false -> {
+                refreshImageView.visibility = View.GONE
+                refreshImageView.setOnClickListener(null)
+            }
         }
     }
 }
