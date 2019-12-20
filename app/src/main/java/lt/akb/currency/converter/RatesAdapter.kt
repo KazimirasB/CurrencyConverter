@@ -72,12 +72,8 @@ class RatesAdapter(
     }
 
     fun refreshRates(positionStart: Int) {
-            Handler().post {
-                notifyItemRangeChanged(positionStart, currencyRates.size, 0)
-            }
-
+        Handler().post {
+            notifyItemRangeChanged(positionStart, currencyRates.size, 0)
+        }
     }
 }
-
-
-
