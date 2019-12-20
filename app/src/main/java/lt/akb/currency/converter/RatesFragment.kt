@@ -37,7 +37,7 @@ class RatesFragment : Fragment() {
                 ratesAdapter.setList(rates)
                 startTimer()
             } else
-            viewModel.observeRates(this::handelError)
+                viewModel.observeRates(this::handelError)
         })
     }
 
@@ -79,8 +79,8 @@ class RatesFragment : Fragment() {
     }
 
     private fun handelError(t: Throwable?) {
-        t?.let{Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()}
+        t?.let {
+            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+        }
     }
-
-
 }

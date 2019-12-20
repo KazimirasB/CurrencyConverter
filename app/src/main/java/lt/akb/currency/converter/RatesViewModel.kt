@@ -75,8 +75,8 @@ class RatesViewModel(
     }
 
     fun setBaseRate(rate: Rate) {
-        amount = rate.value
         this.rate = rate
+        amount = rate.value
     }
 
     fun setBaseAmount(amount: BigDecimal) {

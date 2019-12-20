@@ -11,7 +11,6 @@ class RatesExceptionHandler(private val context: Context?) :
         ex: Throwable
     ) {
         Log.e("RatesExceptionHandler", ex.message)
-        Toast.makeText(context, ex.message, Toast.LENGTH_LONG).show()
-    }
+      }
 
 }
