@@ -1,23 +1,29 @@
 package lt.akb.currency.converter
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.converter_fragment.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import lt.akb.currency.R
+import lt.akb.currency.databinding.ConverterFragmentBinding
 import kotlin.concurrent.fixedRateTimer
 
 class RatesFragment : Fragment() {
+    private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
@@ -32,22 +38,24 @@ class RatesFragment : Fragment() {
 
         viewModel.ratesLive.observe(this, Observer { rates ->
             if (rates.size > 1) {
-                setRefresh(false)
                 ratesAdapter.setList(rates)
-                progress.visibility=View.GONE
                 startTimer()
-            } else {
-                progress.visibility=View.VISIBLE
-                viewModel.observeRates(this::handelError)
-            }
+            } else
+                observeRates()
         })
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.converter_fragment, container, false)
+    ): View? {
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.converter_fragment,
+            container,
+            false
+        )
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,6 +65,7 @@ class RatesFragment : Fragment() {
             adapter = ratesAdapter
             layoutManager = LinearLayoutManager(activity)
         }
+        binding.fragment = this
     }
 
     override fun onDestroy() {
@@ -81,26 +90,24 @@ class RatesFragment : Fragment() {
     }
 
     private fun handelError(t: Throwable?) {
-        t?.let {
-            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
-            progress.visibility=View.GONE
-            setRefresh(true)
-        }
+        Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
+        t?.let { throw it }
     }
 
-    private fun setRefresh(isRefresh : Boolean) {
-        when (isRefresh) {
-            true -> {
-                refreshImageView.visibility = View.VISIBLE
-                refreshImageView.setOnClickListener {
-                    progress.visibility=View.VISIBLE
-                    viewModel.observeRates(this::handelError)
-                }
+    @SuppressLint("CheckResult")
+    fun observeRates() {
+        viewModel.appRepository.apiClient.observeRates()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                progressBar.visibility = View.VISIBLE
+                reloadImageButton.visibility = View.GONE
             }
-            false -> {
-                refreshImageView.visibility = View.GONE
-                refreshImageView.setOnClickListener(null)
+            .doOnSuccess { progressBar.visibility = View.GONE }
+            .doOnError {
+                progressBar.visibility = View.GONE
+                reloadImageButton.visibility = View.VISIBLE
             }
-        }
+            .subscribe(viewModel::handleResponse, this::handelError)
     }
 }
