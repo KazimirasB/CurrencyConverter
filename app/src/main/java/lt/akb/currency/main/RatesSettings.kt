@@ -20,7 +20,7 @@ const val IMAGES_URL = "IMAGES_URL"
 class RatesSettings {
     companion object {
         var ratesUrl: String = ""
-        private var imagesUrl: String = ""
+        var imagesUrl: String = ""
         private lateinit var pref: SharedPreferences
 
         fun init(context: Context) {

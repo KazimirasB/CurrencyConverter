@@ -1,8 +1,9 @@
 package lt.akb.currency.main
 
+import android.content.Context
 import android.util.Log
 
-class RatesExceptionHandler :
+class RatesExceptionHandler(private val context: Context?) :
     Thread.UncaughtExceptionHandler {
     override fun uncaughtException(
         thread: Thread,

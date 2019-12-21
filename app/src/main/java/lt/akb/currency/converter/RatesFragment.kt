@@ -40,8 +40,7 @@ class RatesFragment : Fragment() {
             if (rates.size > 1) {
                 ratesAdapter.setList(rates)
                 startTimer()
-            } else
-                observeRates()
+            } else observeRates()
         })
     }
 
@@ -66,6 +65,8 @@ class RatesFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
         }
         binding.fragment = this
+
+        observeRates()
     }
 
     override fun onDestroy() {
