@@ -1,13 +1,11 @@
 package lt.akb.currency
 
-import lt.akb.currency.converter.RatesViewModel
 import lt.akb.currency.converter.calculateAmount
 import lt.akb.currency.converter.toDecimalString
 import lt.akb.currency.database.DatabaseConverters
 import lt.akb.currency.database.Rate
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 import java.math.BigDecimal
 
 class AppUnitTest {

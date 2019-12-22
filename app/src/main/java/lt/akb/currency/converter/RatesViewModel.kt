@@ -56,7 +56,6 @@ class RatesViewModel(
 
     fun calculateValue(item: Rate): String {
         item.value = item.calculateAmount(rateBase, amount)
-//        item.value = calculateAmount(item)
         return item.value.toDecimalString()
     }
 
