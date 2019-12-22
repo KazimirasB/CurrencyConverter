@@ -61,7 +61,7 @@ class RatesAdapter(
 
     fun setBaseRate(rate: Rate) {
         val oldPosition = currencyRates.indexOf(rate)
-        rate.orderKey = viewModel.rate.orderKey + 1
+        rate.orderKey = viewModel.rateBase.orderKey + 1
         viewModel.setBaseRate(rate)
         currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         notifyItemMoved(oldPosition, 0)

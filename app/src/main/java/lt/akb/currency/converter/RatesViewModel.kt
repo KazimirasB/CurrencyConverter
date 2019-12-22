@@ -14,12 +14,14 @@ import java.math.BigDecimal
 import java.util.*
 
 fun BigDecimal.toDecimalString() = "${setScale(2, BigDecimal.ROUND_CEILING).stripTrailingZeros()}"
+fun Rate.calculateAmount(rateBase: Rate, amount: BigDecimal) : BigDecimal =  currencyRate.multiply(amount)
+        .divide(rateBase.currencyRate, 2, BigDecimal.ROUND_CEILING)
 
 class RatesViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    lateinit var rate: Rate
+    lateinit var rateBase: Rate
     private var amount = BigDecimal.ONE
     private var currencyMap: HashMap<String, String>
     var ratesLive: LiveData<List<Rate>>
@@ -53,22 +55,23 @@ class RatesViewModel(
     }
 
     fun calculateValue(item: Rate): String {
-        item.value = calculateAmount(item)
+        item.value = item.calculateAmount(rateBase, amount)
+//        item.value = calculateAmount(item)
         return item.value.toDecimalString()
     }
 
-    private fun calculateAmount(item: Rate): BigDecimal {
-        return item.currencyRate.multiply(amount)
-            .divide(rate.currencyRate, 2, BigDecimal.ROUND_CEILING)
+    private fun calculateAmount(rate: Rate): BigDecimal {
+        return rate.currencyRate.multiply(amount)
+            .divide(rateBase.currencyRate, 2, BigDecimal.ROUND_CEILING)
     }
 
     fun setBaseRate(rate: Rate) {
-        this.rate = rate
+        this.rateBase = rate
         amount = rate.value
     }
 
     fun setBaseAmount(amount: BigDecimal) {
         this.amount = amount
-        rate.value = amount
+        rateBase.value = amount
     }
 }
