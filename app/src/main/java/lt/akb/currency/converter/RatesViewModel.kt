@@ -59,11 +59,6 @@ class RatesViewModel(
         return item.value.toDecimalString()
     }
 
-    private fun calculateAmount(rate: Rate): BigDecimal {
-        return rate.currencyRate.multiply(amount)
-            .divide(rateBase.currencyRate, 2, BigDecimal.ROUND_CEILING)
-    }
-
     fun setBaseRate(rate: Rate) {
         this.rateBase = rate
         amount = rate.value
