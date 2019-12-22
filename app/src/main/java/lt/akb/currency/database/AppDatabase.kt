@@ -43,7 +43,8 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 INSTANCE?.let {
                     scope.launch {
-                        it.getRatesDao().insert(Rate("EUR", "EU", "EU euro", BigDecimal.ONE, 1))
+                        it.getRatesDao().insert(
+                            Rate("EUR", "EU", "EU euro", BigDecimal.ONE, 1))
                     }
                 }
             }

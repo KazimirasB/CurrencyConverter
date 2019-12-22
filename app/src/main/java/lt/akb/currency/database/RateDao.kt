@@ -16,9 +16,6 @@ interface RateDao {
     @Query("SELECT * FROM currency_rate")
     fun getAllLive(): LiveData<List<Rate>>
 
-//    @Query("SELECT * FROM currency_rate ORDER BY orderKey DESC")
-//    fun getAllLive(): LiveData<List<Rate>>
-
     @Query("UPDATE currency_rate SET currencyRate = :value WHERE currency= :currency")
     suspend fun updateValue(currency:String, value:BigDecimal)
 
