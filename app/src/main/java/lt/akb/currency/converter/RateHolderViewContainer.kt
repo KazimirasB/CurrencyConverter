@@ -6,6 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import lt.akb.currency.R
 
+//Inflates Holder by type view rate item
 class RateHolderViewContainer(
     private val adapter: RatesAdapter,
     private val inflater: LayoutInflater

@@ -23,7 +23,7 @@ import java.io.IOException
 import java.math.BigDecimal
 
 @RunWith(AndroidJUnit4::class)
-class AppDatabaseTest {
+class RateDatabaseTest {
 
     private lateinit var dao: RateDao
     private lateinit var db: AppDatabase
@@ -45,13 +45,12 @@ class AppDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeUserAndReadInList() {
-        val rate = Rate("EUR", "EU", "EU euro", BigDecimal.ONE, 1)
-        val repoScope = CoroutineScope(Dispatchers.Main + Job())
-        repoScope.launch {
-            dao.insert(
-                rate
-            )
+    fun checkCurrencyRateAddAndRead() {
+        val rate = Rate("EUR", "EU", "EU euro", BigDecimal.ONE, 1000)
+
+        val scope = CoroutineScope(Dispatchers.Main + Job())
+        scope.launch {
+            dao.insert(rate)
         }
 
         val items = dao.getAllLive()

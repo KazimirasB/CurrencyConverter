@@ -14,7 +14,7 @@ import java.math.BigDecimal
 
 class RatesRepository(application: Application) {
 
-    val apiClient = ApiClient(this)
+    val apiClient = ApiClient()
     val repoScope = CoroutineScope(Dispatchers.Main + Job())
     private val rateDao = AppDatabase.getInstance(application, repoScope).getRateDao()
 
@@ -22,16 +22,18 @@ class RatesRepository(application: Application) {
         RatesSettings.init(application.applicationContext)
     }
 
+    // Add list of currencies into database
     fun addRates(items: List<Rate>) {
         repoScope.launch { rateDao.insertAll(items) }
     }
 
+    //load currencies from database
     fun getRatesLive(): LiveData<List<Rate>> {
         return liveData(Dispatchers.IO) { emitSource(rateDao.getAllLive()) }
     }
 
+    //updates rates of currencies from remote server
     fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
-
         val response = apiClient.updateRates()
         val ratesMap = response.rates
         for (i in currencyRates.indices) {
@@ -42,7 +44,4 @@ class RatesRepository(application: Application) {
             emit(ratesMap)
         }
     }
-
-    fun getBaseUrl() = RatesSettings.ratesUrl
-
 }

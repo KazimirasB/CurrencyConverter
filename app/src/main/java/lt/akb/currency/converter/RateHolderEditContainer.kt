@@ -6,6 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import lt.akb.currency.R
 
+//Inflates Holder by type edit rate item amount
 class RateHolderEditContainer(
     private val adapter: RatesAdapter,
     private val inflater: LayoutInflater

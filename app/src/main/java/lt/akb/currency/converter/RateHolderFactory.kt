@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import lt.akb.currency.database.Rate
 
+//Generate ViewHolder container by list item type and bind item
 class RateHolderFactory {
     private val containers = arrayListOf<IHolderContainer>()
     private val viewTypeKeys = hashMapOf<Any, Int>()

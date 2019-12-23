@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import lt.akb.currency.database.Rate
 import lt.akb.currency.databinding.RateViewItemBinding
 
+//Holder to view currency item and implement item selecting logic
 class RateHolderView(private val binding: RateViewItemBinding, private val adapter: RatesAdapter) :
     RecyclerView.ViewHolder(binding.root), IRatesBind {
     init {

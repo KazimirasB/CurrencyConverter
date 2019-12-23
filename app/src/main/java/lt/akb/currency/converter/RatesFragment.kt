@@ -36,6 +36,7 @@ class RatesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //Observe currency rates from database, then starts periodic updates
         viewModel.ratesLive.observe(this, Observer { rates ->
             if (rates.size > 1) {
                 ratesAdapter.setList(rates)
@@ -74,6 +75,7 @@ class RatesFragment : Fragment() {
         isStop = true
     }
 
+    //Run periodic rates update every 1 second
     private fun startTimer() {
         isStop = false
         fixedRateTimer("timer", false, 1000L, 1000L) {
@@ -82,6 +84,7 @@ class RatesFragment : Fragment() {
         }
     }
 
+    //Updated currency rates
     private fun updateRates() {
         viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
             result?.let {
@@ -90,11 +93,13 @@ class RatesFragment : Fragment() {
         })
     }
 
+    //Show message on some error in currency rates load from web server
     private fun handelError(t: Throwable?) {
         Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
         t?.let { throw it }
     }
 
+    //Observe currency rates on web server, show progress, manual reload button on error
     @SuppressLint("CheckResult")
     fun observeRates() {
         viewModel.appRepository.apiClient.observeRates()

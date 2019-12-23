@@ -41,11 +41,11 @@ class AdapterTest {
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(position, click())
         )
 
-        onView(withId(R.id.ratesRecyclerView)).check(matches(atPosition(0, R.id.currencyTextView,
+        onView(withId(R.id.ratesRecyclerView)).check(matches(getItemByPosition(0, R.id.currencyTextView,
            withText(item.currency))))
     }
 
-    private fun atPosition(position: Int, viewId: Int, @NonNull itemMatcher: Matcher<View?>): Matcher<View?>? {
+    private fun getItemByPosition(position: Int, viewId: Int, @NonNull itemMatcher: Matcher<View?>): Matcher<View?>? {
 
         return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
             override fun describeTo(description: Description) {

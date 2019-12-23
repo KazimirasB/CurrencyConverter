@@ -19,7 +19,7 @@ data class Rate(
     var currencyRate: BigDecimal, //Currency rate value to base currency
     var orderKey: Int, //Order key indicator
     var value: BigDecimal = BigDecimal.ONE //Currency value after conversion
-){
+) {
     fun getValueString(): String {
         return value.toDecimalString()
     }
