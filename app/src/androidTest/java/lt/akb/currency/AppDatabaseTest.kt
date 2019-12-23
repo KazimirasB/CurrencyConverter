@@ -34,7 +34,7 @@ class AppDatabaseTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        dao = db.getRatesDao()
+        dao = db.getRateDao()
     }
 
     @After

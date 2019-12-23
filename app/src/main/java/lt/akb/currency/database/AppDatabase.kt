@@ -10,11 +10,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
+/*
+Creates currency rates database, add default EUR currency item and provide DAO to access data
+ */
+
 @Database(entities = [Rate::class], version = 1, exportSchema = false)
 @TypeConverters(DatabaseConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun getRatesDao(): RateDao
+    abstract fun getRateDao(): RateDao
 
     companion object {
 
@@ -43,7 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 INSTANCE?.let {
                     scope.launch {
-                        it.getRatesDao().insert(
+                        it.getRateDao().insert(
                             Rate("EUR", "EU", "EU euro", BigDecimal.ONE, 1))
                     }
                 }

@@ -23,7 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 class AdapterTest {
 
@@ -44,7 +43,6 @@ class AdapterTest {
 
         onView(withId(R.id.ratesRecyclerView)).check(matches(atPosition(0, R.id.currencyTextView,
            withText(item.currency))))
-
     }
 
     private fun atPosition(position: Int, viewId: Int, @NonNull itemMatcher: Matcher<View?>): Matcher<View?>? {

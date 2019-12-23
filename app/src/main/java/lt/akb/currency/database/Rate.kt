@@ -6,6 +6,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import lt.akb.currency.converter.toDecimalString
 
+/*
+Currency rate data object
+ */
+
 @Entity(tableName = "currency_rate", indices = [Index("orderKey")])
 data class Rate(
     @PrimaryKey
@@ -14,7 +18,7 @@ data class Rate(
     var name: String, //Currency extended name
     var currencyRate: BigDecimal, //Currency rate value to base currency
     var orderKey: Int, //Order key indicator
-    var value: BigDecimal = BigDecimal.ONE //Order key indicator
+    var value: BigDecimal = BigDecimal.ONE //Currency value after conversion
 ){
     fun getValueString(): String {
         return value.toDecimalString()

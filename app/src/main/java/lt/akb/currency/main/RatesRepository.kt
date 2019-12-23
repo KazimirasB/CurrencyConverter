@@ -16,7 +16,7 @@ class RatesRepository(application: Application) {
 
     val apiClient = ApiClient(this)
     val repoScope = CoroutineScope(Dispatchers.Main + Job())
-    private val rateDao = AppDatabase.getInstance(application, repoScope).getRatesDao()
+    private val rateDao = AppDatabase.getInstance(application, repoScope).getRateDao()
 
     init {
         RatesSettings.init(application.applicationContext)
