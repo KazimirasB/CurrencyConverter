@@ -22,6 +22,7 @@ class RatesAdapter(
     private val viewModel: RatesViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private lateinit var recyclerView: RecyclerView
     var currencyRates = emptyList<Rate>()
     private val factory = RateHolderFactory()
 
@@ -29,6 +30,11 @@ class RatesAdapter(
     init {
         factory.registerContainer(RateHolderEditContainer(this, inflater))
         factory.registerContainer(RateHolderViewContainer(this, inflater))
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        this.recyclerView=recyclerView
     }
 
     //On position 0 return edit container, else view container
@@ -80,6 +86,9 @@ class RatesAdapter(
         viewModel.setBaseRate(rate)
         currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         notifyItemMoved(oldPosition, 0)
+        Handler().post {
+            recyclerView.scrollToPosition(0)
+        }
     }
 
     //Calculate amount value on bind item
