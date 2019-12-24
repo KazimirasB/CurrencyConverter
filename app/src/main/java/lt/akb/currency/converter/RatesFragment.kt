@@ -1,6 +1,5 @@
 package lt.akb.currency.converter
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.converter_fragment.*
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +25,8 @@ import kotlin.concurrent.fixedRateTimer
 class RatesFragment : Fragment() {
     private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
+    private lateinit var disposableRate : Disposable
+
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
     }
@@ -73,6 +75,7 @@ class RatesFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         isStop = true
+        disposableRate.dispose()
     }
 
     //Run periodic rates update every 1 second
@@ -100,10 +103,8 @@ class RatesFragment : Fragment() {
     }
 
     //Observe currency rates on web server, show progress, manual reload button on error
-    @SuppressLint("CheckResult")
     fun observeRates() {
-        viewModel.appRepository.apiClient.observeRates()
-            .subscribeOn(Schedulers.io())
+        disposableRate =  viewModel.appRepository.apiClient.observeRates().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 progressBar.visibility = View.VISIBLE
@@ -115,5 +116,6 @@ class RatesFragment : Fragment() {
                 reloadImageButton.visibility = View.VISIBLE
             }
             .subscribe(viewModel::handleResponse, this::handelError)
-    }
+
+            }
 }
