@@ -25,7 +25,7 @@ import kotlin.concurrent.fixedRateTimer
 class RatesFragment : Fragment() {
     private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
-    private lateinit var disposableRate : Disposable
+    private lateinit var disposableRate: Disposable
 
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this).get(RatesViewModel::class.java)
@@ -104,18 +104,19 @@ class RatesFragment : Fragment() {
 
     //Observe currency rates on web server, show progress, manual reload button on error
     fun observeRates() {
-        disposableRate =  viewModel.appRepository.apiClient.observeRates().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                progressBar.visibility = View.VISIBLE
-                reloadImageButton.visibility = View.GONE
-            }
-            .doOnSuccess { progressBar.visibility = View.GONE }
-            .doOnError {
-                progressBar.visibility = View.GONE
-                reloadImageButton.visibility = View.VISIBLE
-            }
-            .subscribe(viewModel::handleResponse, this::handelError)
+        disposableRate =
+            viewModel.appRepository.apiClient.observeRates().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    progressBar.visibility = View.VISIBLE
+                    reloadImageButton.visibility = View.GONE
+                }
+                .doOnSuccess { progressBar.visibility = View.GONE }
+                .doOnError {
+                    progressBar.visibility = View.GONE
+                    reloadImageButton.visibility = View.VISIBLE
+                }
+                .subscribe(viewModel::handleResponse, this::handelError)
 
-            }
+    }
 }
