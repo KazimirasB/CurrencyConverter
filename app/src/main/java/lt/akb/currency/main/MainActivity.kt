@@ -18,6 +18,10 @@ class MainActivity : AppCompatActivity() {
 
         //Use custom exception handler
         Thread.setDefaultUncaughtExceptionHandler(RatesExceptionHandler())
+
     }
+
+
+
 
 }

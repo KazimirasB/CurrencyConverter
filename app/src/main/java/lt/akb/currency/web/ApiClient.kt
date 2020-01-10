@@ -6,7 +6,7 @@ import lt.akb.currency.main.RatesSettings
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ApiClient {
+class ApiClient : IWebRates {
 
     private val webApiRates: WebApi by lazy {
         Retrofit.Builder()
@@ -16,13 +16,13 @@ class ApiClient {
             .build().create(WebApi::class.java)
     }
 
-    //load currencies from remote server
-    fun observeRates(): Single<RatesResult> {
+
+    override fun observeRates(): Single<RatesResult> {
         return webApiRates.observeRates()
     }
 
     //load currencies rates updates from remote server
-    suspend fun updateRates(): RatesResult {
+    override suspend fun updateRates(): RatesResult {
         return webApiRates.getRatesUpdate()
     }
 }

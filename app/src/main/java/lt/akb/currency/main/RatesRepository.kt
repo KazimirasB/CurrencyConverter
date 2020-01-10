@@ -16,13 +16,14 @@ import lt.akb.currency.R
 import lt.akb.currency.database.AppDatabase
 import lt.akb.currency.database.Rate
 import lt.akb.currency.web.ApiClient
+import lt.akb.currency.web.IWebRates
 import lt.akb.currency.web.RatesResult
 import java.math.BigDecimal
 import java.util.*
 
 class RatesRepository(application: Application) {
 
-    val apiClient = ApiClient()
+    private val iWebRates: IWebRates = ApiClient()
     val repoScope = CoroutineScope(Dispatchers.Main + Job())
     private val rateDao = AppDatabase.getInstance(application, repoScope).getRateDao()
     private var currencyMap: HashMap<String, String> //default map of currencies and country codes
@@ -47,7 +48,7 @@ class RatesRepository(application: Application) {
 
     //updates rates of currencies from remote server
     fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
-        val response = apiClient.updateRates()
+        val response = iWebRates.updateRates()
         val ratesMap = response.rates
         for (i in currencyRates.indices) {
             val currencyRate = currencyRates[i]
@@ -60,7 +61,7 @@ class RatesRepository(application: Application) {
 
     fun observeRates() {
         disposableRate =
-            apiClient.observeRates().subscribeOn(Schedulers.io())
+            iWebRates.observeRates().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
 //                    progressBar.visibility = View.VISIBLE

@@ -1,9 +1,8 @@
 package lt.akb.currency.converter
 
-import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.cancel
-import lt.akb.currency.custom.CustomViewModel
 import lt.akb.currency.database.Rate
 import lt.akb.currency.main.RatesRepository
 import java.math.BigDecimal
@@ -15,16 +14,16 @@ fun BigDecimal.toDecimalString() = "${setScale(2, BigDecimal.ROUND_CEILING).stri
 fun Rate.calculateAmount(rateBase: Rate, amount: BigDecimal) : BigDecimal =  currencyRate.multiply(amount)
         .divide(rateBase.currencyRate, 2, BigDecimal.ROUND_CEILING)
 
-class RatesViewModel(
-    application: Application
-) : CustomViewModel(application) {
+class RatesViewModel : ViewModel() {
 
     lateinit var rateBase: Rate
     private var amount = BigDecimal.ONE
-    var ratesLive: LiveData<List<Rate>>
-    private val appRepository: RatesRepository = RatesRepository(application)
+    lateinit var ratesLive: LiveData<List<Rate>>
+   // @Inject lateinit var appRepository: RatesRepository
+    lateinit var appRepository : RatesRepository
 
-    init {
+    fun initRepository(appRepository : RatesRepository) {
+        this.appRepository = appRepository
         ratesLive = appRepository.getRatesLive()
       }
 
