@@ -1,40 +1,26 @@
 package lt.akb.currency.main
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import lt.akb.currency.R
-import lt.akb.currency.database.AppDatabase
 import lt.akb.currency.database.Rate
-import lt.akb.currency.web.ApiClient
+import lt.akb.currency.database.RateDao
 import lt.akb.currency.web.IWebRates
 import lt.akb.currency.web.RatesResult
 import java.math.BigDecimal
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RatesRepository(application: Application) {
+@Singleton
+class RatesRepository @Inject constructor(private val rateDao: RateDao, private val iWebRates: IWebRates, val repoScope: CoroutineScope, val settings: RatesSettings ) {
 
-    private val iWebRates: IWebRates = ApiClient()
-    val repoScope = CoroutineScope(Dispatchers.Main + Job())
-    private val rateDao = AppDatabase.getInstance(application, repoScope).getRateDao()
-    private var currencyMap: HashMap<String, String> //default map of currencies and country codes
     lateinit var disposableRate: Disposable
-
-    init {
-        RatesSettings.init(application.applicationContext)
-        currencyMap = Gson().fromJson(application.getString(R.string.currencies_json),
-            object : TypeToken<HashMap<String, String>>() {}.type
-        )
-    }
 
     // Add list of currencies into database
     private fun addRates(items: List<Rate>) {
@@ -87,9 +73,8 @@ class RatesRepository(application: Application) {
         val rates = ArrayList<Rate>()
         for (key in result.rates.keys) {
             val currency = Currency.getInstance(key)
-            val countryCode = currencyMap[key]
-            val rate =
-                Rate(key, countryCode, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
+            val flagUrl = settings.getImageUrl(key)
+            val rate = Rate(key, flagUrl, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
             rates.add(rate)
         }
         if (rates.isNotEmpty()) addRates(rates)

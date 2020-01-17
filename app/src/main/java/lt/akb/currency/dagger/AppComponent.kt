@@ -4,14 +4,22 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
+import lt.akb.currency.RatesApplication
+import lt.akb.currency.dagger.android.FragmentModule
+import lt.akb.currency.dagger.viewModel.ViewModelModule
+import lt.akb.currency.database.RoomModule
+import javax.inject.Singleton
 
-@Component(modules = [AndroidInjectionModule::class])
+//TODO Use subcomponets @Component(modules = [AndroidInjectionModule::class, FragmentModule::class, ViewModelModule::class, WebApiModule::class, AppSubComponents::class])  - https://dagger.dev/android.html
+@Singleton
+@Component(modules = [AndroidInjectionModule::class, FragmentModule::class, ViewModelModule::class, WebApiModule::class, RoomModule::class, RetrofitModule::class])
 interface AppComponent {
 
-    // Factory to create instances of the AppComponent
     @Component.Factory
     interface Factory {
-        // With @BindsInstance, the Context passed in will be available in the graph
         fun create(@BindsInstance context: Context): AppComponent
     }
+
+    fun inject(appComponent: RatesApplication)
+
 }

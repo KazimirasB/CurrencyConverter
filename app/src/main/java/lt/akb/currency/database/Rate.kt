@@ -14,7 +14,7 @@ Currency rate data object
 data class Rate(
     @PrimaryKey
     var currency: String, //Currency key
-    var country: String?, //Country code for flag
+    var flagUrl: String?, //Web url to download flag image
     var name: String, //Currency extended name
     var currencyRate: BigDecimal, //Currency rate value to base currency
     var orderKey: Int, //Order key indicator

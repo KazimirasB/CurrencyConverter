@@ -5,17 +5,15 @@ import io.reactivex.Single
 import lt.akb.currency.main.RatesSettings
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ApiClient : IWebRates {
+@Singleton
+class ApiClient @Inject constructor(retrofit: Retrofit) : IWebRates {
 
     private val webApiRates: WebApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(RatesSettings.ratesUrl)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(WebApi::class.java)
+        retrofit.create(WebApi::class.java)
     }
-
 
     override fun observeRates(): Single<RatesResult> {
         return webApiRates.observeRates()

@@ -31,7 +31,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:src="@drawable/ic_empty_icon"
-            app:setCurrencyFlagFromWeb="@{item.country}"
+            app:setCurrencyFlagFromWeb="@{item.flagUrl}"
             android:contentDescription="@string/flag"/>
 
         <TextView

@@ -14,7 +14,6 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import lt.akb.currency.R
 import lt.akb.currency.database.Rate
-import lt.akb.currency.main.RatesSettings
 import java.math.BigDecimal
 
 class RatesAdapter(
@@ -106,11 +105,10 @@ class RatesAdapter(
 
 //Get currency flag from web server and make it round
 @BindingAdapter("setCurrencyFlagFromWeb")
-fun setCurrencyFlagFromWeb(view: ImageView, countryCode: String?) {
-    countryCode?.let {
-
+fun setCurrencyFlagFromWeb(view: ImageView, flagUrl: String?) {
+    flagUrl?.let {
         Picasso.get()
-            .load(RatesSettings.getImageUrl(countryCode))
+            .load(flagUrl)
             .error(R.drawable.ic_error_icon)
             .into(object : Target {
 

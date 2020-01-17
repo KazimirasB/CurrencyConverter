@@ -39,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private class CreateCallback(
+        class CreateCallback(
             private val scope: CoroutineScope
         ) : RoomDatabase.Callback() {
 
