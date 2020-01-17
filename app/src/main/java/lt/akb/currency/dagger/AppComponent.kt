@@ -7,7 +7,6 @@ import dagger.android.AndroidInjectionModule
 import lt.akb.currency.RatesApplication
 import lt.akb.currency.dagger.android.FragmentModule
 import lt.akb.currency.dagger.viewModel.ViewModelModule
-import lt.akb.currency.database.RoomModule
 import javax.inject.Singleton
 
 //TODO Use subcomponets @Component(modules = [AndroidInjectionModule::class, FragmentModule::class, ViewModelModule::class, WebApiModule::class, AppSubComponents::class])  - https://dagger.dev/android.html

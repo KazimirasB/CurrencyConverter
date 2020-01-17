@@ -1,4 +1,4 @@
-package lt.akb.currency.database
+package lt.akb.currency.dagger
 
 import android.content.Context
 import androidx.room.Room
@@ -8,7 +8,9 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import lt.akb.currency.database.Rate
+import lt.akb.currency.database.RateDao
+import lt.akb.currency.database.RatesDatabase
 import lt.akb.currency.main.RatesSettings
 import java.math.BigDecimal
 import javax.inject.Singleton
@@ -16,19 +18,25 @@ import javax.inject.Singleton
 @Module
 class RoomModule {
 
-    lateinit var appDatabase: AppDatabase
+    lateinit var appDatabase: RatesDatabase
 
     @Provides
     @Singleton
-    fun provideDatabase(context: Context, scope: CoroutineScope, settings: RatesSettings): AppDatabase {
-        appDatabase =  Room.databaseBuilder(context, AppDatabase::class.java, "currency_rates_database")
+    fun provideDatabase(context: Context, scope: CoroutineScope, settings: RatesSettings): RatesDatabase {
+        appDatabase =  Room.databaseBuilder(context, RatesDatabase::class.java, "currency_rates_database")
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
                     appDatabase?.let {
                         scope.launch {
                             it.getRateDao().insert(
-                                Rate("EUR", settings.getImageUrl("EUR"), "EU euro", BigDecimal.ONE, 1)
+                                Rate(
+                                    "EUR",
+                                    settings.getImageUrl("EUR"),
+                                    "EU euro",
+                                    BigDecimal.ONE,
+                                    1
+                                )
                             )
                         }
                     }
@@ -40,7 +48,7 @@ class RoomModule {
 
     @Provides
     @Singleton
-    fun provideRateDao(appDatabase: AppDatabase): RateDao {
+    fun provideRateDao(appDatabase: RatesDatabase): RateDao {
         return appDatabase.getRateDao()
     }
 
