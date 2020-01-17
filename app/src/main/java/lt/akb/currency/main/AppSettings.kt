@@ -13,7 +13,7 @@ const val RATES_URL = "RATES_URL"
 const val IMAGES_URL = "IMAGES_URL"
 
 @Singleton
-class RatesSettings @Inject constructor(context: Context, gson: Gson) {
+class AppSettings @Inject constructor(context: Context, gson: Gson) {
 
     private val pref = context.getSharedPreferences(SETTINGS_TAG, Context.MODE_PRIVATE)
 

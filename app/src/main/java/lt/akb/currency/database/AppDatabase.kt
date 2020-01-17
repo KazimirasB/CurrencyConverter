@@ -10,7 +10,7 @@ Creates currency rates database, add default EUR currency item and provide DAO t
 
 @Database(entities = [Rate::class], version = 1, exportSchema = false)
 @TypeConverters(DatabaseConverters::class)
-abstract class RatesDatabase : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getRateDao(): RateDao
 

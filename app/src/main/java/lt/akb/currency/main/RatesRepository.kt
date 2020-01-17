@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RatesRepository @Inject constructor(private val rateDao: RateDao, private val iWebRates: IWebRates, val repoScope: CoroutineScope, val settings: RatesSettings ) {
+class RatesRepository @Inject constructor(private val rateDao: RateDao, private val iWebRates: IWebRates, val repoScope: CoroutineScope, val settings: AppSettings ) {
 
     lateinit var disposableRate: Disposable
 

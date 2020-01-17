@@ -7,7 +7,7 @@ import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import lt.akb.currency.main.RatesSettings
+import lt.akb.currency.main.AppSettings
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -21,7 +21,7 @@ class RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(gsonConverterFactory: GsonConverterFactory, rxJava2CallAdapterFactory: RxJava2CallAdapterFactory, settings: RatesSettings): Retrofit = Retrofit.Builder()
+    fun provideRetrofit(gsonConverterFactory: GsonConverterFactory, rxJava2CallAdapterFactory: RxJava2CallAdapterFactory, settings: AppSettings): Retrofit = Retrofit.Builder()
         .baseUrl(settings.ratesUrl)
         .addCallAdapterFactory(rxJava2CallAdapterFactory)
         .addConverterFactory(gsonConverterFactory)

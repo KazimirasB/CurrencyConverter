@@ -3,7 +3,7 @@ package lt.akb.currency
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import lt.akb.currency.main.RatesSettings
+import lt.akb.currency.main.AppSettings
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -16,22 +16,22 @@ class SettingsTest {
 
     @Before
     fun initSettings() {
-        RatesSettings.init(context)
+        AppSettings.init(context)
     }
 
     @Test
     @Throws(Exception::class)
     fun ratesUrl() {
         val urlRates = "http://wwww.test_rates.com"
-        RatesSettings.updateRatesUrl(urlRates)
-        assertEquals(RatesSettings.ratesUrl, urlRates)
+        AppSettings.updateRatesUrl(urlRates)
+        assertEquals(AppSettings.ratesUrl, urlRates)
     }
     @Test
     @Throws(Exception::class)
     fun imagesUrl() {
         val urlImages = "http://wwww.test_images.com"
-        RatesSettings.updateImagesUrl(urlImages)
-        val imagesUrl = RatesSettings.getImageUrl("TST")
+        AppSettings.updateImagesUrl(urlImages)
+        val imagesUrl = AppSettings.getImageUrl("TST")
         assertEquals("http://wwww.test_images.com/tst/flat/64.png", imagesUrl)
     }
 

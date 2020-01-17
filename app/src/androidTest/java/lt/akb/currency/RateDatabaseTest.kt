@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import lt.akb.currency.database.RatesDatabase
+import lt.akb.currency.database.AppDatabase
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
 import org.hamcrest.CoreMatchers.equalTo
@@ -26,13 +26,13 @@ import java.math.BigDecimal
 class RateDatabaseTest {
 
     private lateinit var dao: RateDao
-    private lateinit var db: RatesDatabase
+    private lateinit var db: AppDatabase
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, RatesDatabase::class.java
+            context, AppDatabase::class.java
         ).build()
         dao = db.getRateDao()
     }

@@ -1,10 +1,7 @@
 package lt.akb.currency.web
 
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import io.reactivex.Single
-import lt.akb.currency.main.RatesSettings
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,7 +11,7 @@ class ApiClient @Inject constructor(retrofit: Retrofit) : IWebRates {
     private val webApiRates: WebApi by lazy {
         retrofit.create(WebApi::class.java)
     }
-
+    //load rates list from server
     override fun observeRates(): Single<RatesResult> {
         return webApiRates.observeRates()
     }
