@@ -13,6 +13,7 @@ import lt.akb.currency.database.RateDao
 import lt.akb.currency.database.RatesDatabase
 import lt.akb.currency.main.RatesSettings
 import java.math.BigDecimal
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -22,27 +23,23 @@ class RoomModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(context: Context, scope: CoroutineScope, settings: RatesSettings): RatesDatabase {
-        appDatabase =  Room.databaseBuilder(context, RatesDatabase::class.java, "currency_rates_database")
-            .addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    appDatabase?.let {
-                        scope.launch {
-                            it.getRateDao().insert(
-                                Rate(
-                                    "EUR",
-                                    settings.getImageUrl("EUR"),
-                                    "EU euro",
-                                    BigDecimal.ONE,
-                                    1
-                                )
-                            )
+    fun provideDatabase(
+        context: Context,
+        scope: CoroutineScope, @Named("Euro currency") rate: Rate
+    ): RatesDatabase {
+        appDatabase =
+            Room.databaseBuilder(context, RatesDatabase::class.java, "currency_rates_database")
+                .addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        appDatabase?.let {
+                            scope.launch {
+                                it.getRateDao().insert(rate)
+                            }
                         }
                     }
-                }
-            })
-            .build()
+                })
+                .build()
         return appDatabase
     }
 
@@ -50,6 +47,13 @@ class RoomModule {
     @Singleton
     fun provideRateDao(appDatabase: RatesDatabase): RateDao {
         return appDatabase.getRateDao()
+    }
+
+    @Provides
+    @Singleton
+    @Named("Euro currency")
+    fun provideEuroCurrency(settings: RatesSettings): Rate {
+        return Rate("EUR", settings.getImageUrl("EUR"), "EU euro", BigDecimal.ONE, 1)
     }
 
 }
