@@ -21,6 +21,10 @@ import lt.akb.currency.dagger.viewModel.ViewModelFactory
 import lt.akb.currency.databinding.ConverterFragmentBinding
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
+import kotlin.reflect.KFunction
+
+const val ACTION_ADD = "ACTION_ADD"
+const val ACTION_REFRESH = "ACTION_REFRESH"
 
 class RatesFragment : Fragment() {
 
@@ -28,6 +32,8 @@ class RatesFragment : Fragment() {
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
+    private val actionMap = hashMapOf<String, KFunction<Any>>()
+
 
     private val viewModel: RatesViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(RatesViewModel::class.java)
@@ -42,10 +48,31 @@ class RatesFragment : Fragment() {
         AndroidSupportInjection.inject(this)
     }
 
+    private fun addRates(){
+        if (viewModel.rates.size > 1) {
+            ratesAdapter.setList(viewModel.rates)
+            startTimer()
+        } else viewModel.observeRates()
+    }
+
+    private fun refreshRates(){
+        if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
+    }
+
+    private fun crateActions() {
+        actionMap["ACTION_ADD"] = this::addRates
+        actionMap["ACTION_REFRESH"] = this::refreshRates
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        crateActions()
         //Observe currency rates from database, then starts periodic updates
+        viewModel.actions.observe(this, Observer { action ->
+            actionMap[action]?.let {it.call() }
+        })
+
         viewModel.ratesLive.observe(this, Observer { rates ->
             //TODO return object with error handeling in fragment
             if (rates.size > 1) {

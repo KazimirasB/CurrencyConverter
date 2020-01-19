@@ -21,6 +21,7 @@ class RoomModule {
 
     lateinit var appDatabase: AppDatabase
 
+    //Providese database instance and add default currency afte database creations
     @Provides
     @Singleton
     fun provideDatabase(
@@ -42,17 +43,18 @@ class RoomModule {
         return appDatabase
     }
 
+    //Provides database dao object to proceed database transactions
     @Provides
     @Singleton
     fun provideRateDao(appDatabase: AppDatabase): RateDao {
         return appDatabase.getRateDao()
     }
 
+    //Provides default EURO currency
     @Provides
     @Singleton
     @Named("Euro currency")
     fun provideEuroCurrency(settings: AppSettings): Rate {
         return Rate("EUR", settings.getImageUrl("EUR"), "EU euro", BigDecimal.ONE, 1)
     }
-
 }
