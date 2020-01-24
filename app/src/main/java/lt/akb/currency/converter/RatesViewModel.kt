@@ -29,7 +29,8 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     lateinit var rateBase: Rate
     private var amount = BigDecimal.ONE
     val ratesLive: LiveData<List<Rate>> = appRepository.getRatesLive()
-    val actions = MutableLiveData<String>()
+
+    val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
 
     //Update currencies rates from web server
     fun updateRates(currencyRates: List<Rate>) = appRepository.getRatesUpdate(currencyRates)
@@ -63,4 +64,9 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     }
 
 
+    ///Actions part
+//    val actions = MutableLiveData<RatesAction>()
+//    fun loadAction() {
+//        appRepository.loadRates().subscribe { action -> actions.postValue(action.action) }
+//    }
 }

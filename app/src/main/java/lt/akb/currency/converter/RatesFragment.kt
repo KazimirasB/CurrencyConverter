@@ -23,16 +23,13 @@ import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 import kotlin.reflect.KFunction
 
-const val ACTION_ADD = "ACTION_ADD"
-const val ACTION_REFRESH = "ACTION_REFRESH"
-
 class RatesFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
-    private val actionMap = hashMapOf<String, KFunction<Any>>()
+    private val actionMap = hashMapOf<RatesAction, KFunction<Any>>()
 
 
     private val viewModel: RatesViewModel by lazy {
@@ -48,20 +45,20 @@ class RatesFragment : Fragment() {
         AndroidSupportInjection.inject(this)
     }
 
-    private fun addRates(){
+    private fun addRates() {
         if (viewModel.rates.size > 1) {
             ratesAdapter.setList(viewModel.rates)
             startTimer()
         } else viewModel.observeRates()
     }
 
-    private fun refreshRates(){
+    private fun refreshRates() {
         if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
     }
 
     private fun crateActions() {
-        actionMap["ACTION_ADD"] = this::addRates
-        actionMap["ACTION_REFRESH"] = this::refreshRates
+        actionMap[RatesAction.LOAD] = this::addRates
+        actionMap[RatesAction.REFRESH] = this::refreshRates
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,16 +66,24 @@ class RatesFragment : Fragment() {
 
         crateActions()
         //Observe currency rates from database, then starts periodic updates
-        viewModel.actions.observe(this, Observer { action ->
-            actionMap[action]?.let {it.call() }
-        })
+//        viewModel.actions.observe(this, Observer { action ->
+//            actionMap[action]?.let { it.call() }
+//        })
 
-        viewModel.ratesLive.observe(this, Observer { rates ->
-            //TODO return object with error handeling in fragment
-            if (rates.size > 1) {
-                ratesAdapter.setList(rates)
-                startTimer()
-            } else viewModel.observeRates()
+//        viewModel.ratesLive.observe(this, Observer { rates ->
+//            if (rates.size > 1) {
+//                ratesAdapter.setList(rates)
+//                startTimer()
+//            } else viewModel.observeRates()
+//        })
+
+
+        viewModel.ratesLiveSource.observe(this, Observer { source ->
+                if (source.rates!=null && source.rates.size > 1) {
+                    ratesAdapter.setList(source.rates)
+                    startTimer()
+                } else
+                    viewModel.observeRates()
         })
     }
 
