@@ -18,10 +18,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import lt.akb.currency.R
 import lt.akb.currency.dagger.viewModel.ViewModelFactory
+import lt.akb.currency.database.Rate
 import lt.akb.currency.databinding.ConverterFragmentBinding
+import lt.akb.currency.main.bones.RateResource
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 import kotlin.reflect.KFunction
+import lt.akb.currency.main.bones.RateResource.Success as RateResourceSuccess
 
 class RatesFragment : Fragment() {
 
@@ -64,7 +67,7 @@ class RatesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        crateActions()
+//        crateActions()
         //Observe currency rates from database, then starts periodic updates
 //        viewModel.actions.observe(this, Observer { action ->
 //            actionMap[action]?.let { it.call() }
@@ -77,13 +80,22 @@ class RatesFragment : Fragment() {
 //            } else viewModel.observeRates()
 //        })
 
+//        ratesLiveRateReadable
+//        viewModel.ratesLiveSource.observe(this, Observer { source ->
+//                if (source.rates!=null && source.rates.size > 1) {
+//                    ratesAdapter.setList(source.rates)
+//                    startTimer()
+//                } else
+//                    viewModel.observeRates()
+//        })
 
-        viewModel.ratesLiveSource.observe(this, Observer { source ->
-                if (source.rates!=null && source.rates.size > 1) {
-                    ratesAdapter.setList(source.rates)
+        viewModel.ratesLiveRateReadable.observe(this, Observer { source ->
+            when (source) {
+                 is RateResource.Success -> {
+                    ratesAdapter.setList(source.data)
                     startTimer()
-                } else
-                    viewModel.observeRates()
+                }
+            }
         })
     }
 

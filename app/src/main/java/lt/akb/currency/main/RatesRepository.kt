@@ -13,6 +13,7 @@ import lt.akb.currency.converter.RateActionResource
 import lt.akb.currency.converter.RatesAction
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
+import lt.akb.currency.main.bones.RateResource
 import lt.akb.currency.web.IWebRates
 import lt.akb.currency.web.RatesResult
 import java.math.BigDecimal
@@ -41,12 +42,38 @@ class RatesRepository @Inject constructor(
     //load currencies from database
     fun getRatesSourceLive(): LiveData<RateActionResource> {
         return liveData(Dispatchers.IO) {
-          emitSource(Transformations.map(rateDao.getAllLive()) {
+            emitSource(Transformations.map(rateDao.getAllLive()) {
                 RateActionResource(RatesAction.LOAD, it)
             }
             )
         }
     }
+
+    //    suspend fun getSomething(): LiveData<Resource<Something>> = livedata {
+//        emit(Resource.Loading())
+//        try {
+//            val req = apiService.getSomething()
+//            if (req.isSuccessful()) emit(Resource.Success(req.body))
+//        } catch (e: Exception) {
+//            emit(Resource.Error(e.message))
+//        }
+//    }
+//
+    fun getRatesResourceLiveFromWeb(): LiveData<RateResource> =
+        liveData(Dispatchers.IO) {
+            val loading: RateResource = RateResource.Loading(true)
+            emit(loading)
+            try {
+                handleResponse(iWebRates.updateRates())
+                emitSource(Transformations.map(rateDao.getAllLive()) {
+                    RateResource.Success(it)
+                  })
+
+            } catch (e: Exception) {
+                emit(RateResource.Error(e.message!!))
+            }
+
+        }
 
     //updates rates of currencies from remote server
     fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {

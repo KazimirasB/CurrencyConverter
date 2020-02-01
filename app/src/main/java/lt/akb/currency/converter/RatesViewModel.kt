@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import lt.akb.currency.database.Rate
 import lt.akb.currency.main.RatesRepository
+import lt.akb.currency.main.bones.RateResource
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
@@ -31,6 +32,8 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     val ratesLive: LiveData<List<Rate>> = appRepository.getRatesLive()
 
     val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
+    val ratesLiveRateReadable:  LiveData<RateResource> = appRepository.getRatesResourceLiveFromWeb()
+
 
     //Update currencies rates from web server
     fun updateRates(currencyRates: List<Rate>) = appRepository.getRatesUpdate(currencyRates)
