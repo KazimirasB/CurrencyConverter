@@ -61,8 +61,9 @@ class RatesRepository @Inject constructor(
 //
     fun getRatesResourceLiveFromWeb(): LiveData<RateResource> =
         liveData(Dispatchers.IO) {
-            val loading: RateResource = RateResource.Loading(true)
-            emit(loading)
+
+            emit(RateResource.Loading(true))
+
             try {
                 handleResponse(iWebRates.updateRates())
                 emitSource(Transformations.map(rateDao.getAllLive()) {
