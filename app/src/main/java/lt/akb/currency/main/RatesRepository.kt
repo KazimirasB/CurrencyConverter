@@ -65,7 +65,7 @@ class RatesRepository @Inject constructor(
             if (isFetch()) {
                 emit(RateResource.Progress(true))
 
-                when (val resource = iWebRates.updateRateResource()) {
+                when (val resource = iWebRates.updateRateResource{result -> handleResponse(result)}) {
                     is RateResource.Success -> {
                         handleResponse(resource.result)
                         emitSource(Transformations.map(rateDao.getAllLive()) {
@@ -88,7 +88,7 @@ class RatesRepository @Inject constructor(
 
                 emit(RateResource.Progress(true))
 
-                when (val resource = iWebRates.updateRateResource()) {
+                when (val resource = iWebRates.updateRateResource{result -> handleResponse(result)}) {
 
                     is RateResource.Success -> {
                         handleResponse(resource.result)
@@ -153,7 +153,7 @@ class RatesRepository @Inject constructor(
     }
 
     //Save currencies from web server into database, update display name and country code
-    private fun handleResponse(result: RatesResult) {
+    private fun handleResponse(result: RatesResult){
         val rates = ArrayList<Rate>()
         for (key in result.rates.keys) {
             val currency = Currency.getInstance(key)
@@ -164,7 +164,6 @@ class RatesRepository @Inject constructor(
         }
         if (rates.isNotEmpty()) addRates(rates)
     }
-
 
     // Add list of currencies into database
     private fun addRates(items: List<Rate>) {
