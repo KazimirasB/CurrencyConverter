@@ -59,22 +59,48 @@ class RatesRepository @Inject constructor(
 //        }
 //    }
 //
-    fun getRatesResourceLiveFromWeb(): LiveData<RateResource> =
+    fun getRatesResourceLive(isPeriodic: Boolean): LiveData<RateResource> =
         liveData(Dispatchers.IO) {
 
-            emit(RateResource.Loading(true))
+            if (isFetch()) {
+                emit(RateResource.Progress(true))
 
-            try {
-                handleResponse(iWebRates.updateRates())
+                when (val resource = iWebRates.updateRateResource()) {
+                    is RateResource.Success -> {
+                        handleResponse(resource.result)
+                        emitSource(Transformations.map(rateDao.getAllLive()) {
+                            RateResource.Load(it)
+                        })
+                    }
+                    else -> emit(resource)
+                }
+            } else
                 emitSource(Transformations.map(rateDao.getAllLive()) {
-                    RateResource.Success(it)
-                  })
+                    RateResource.Load(it)
+                })
+      }
 
-            } catch (e: Exception) {
-                emit(RateResource.Error(e.message!!))
-            }
+    fun isFetch() = true
+
+
+    fun refreshRatesResourceLive(): LiveData<RateResource> =
+        liveData(Dispatchers.IO) {
+
+                emit(RateResource.Progress(true))
+
+                when (val resource = iWebRates.updateRateResource()) {
+
+                    is RateResource.Success -> {
+                        handleResponse(resource.result)
+                        emitSource(Transformations.map(rateDao.getAllLive()) {
+                            RateResource.Refresh(it)
+                        })
+                    }
+                    else -> emit(resource)
+                }
 
         }
+
 
     //updates rates of currencies from remote server
     fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
@@ -87,6 +113,19 @@ class RatesRepository @Inject constructor(
             }
             emit(ratesMap)
         }
+    }
+
+
+    fun observeRatesLive(): LiveData<RateActionResource> {
+        return liveData(Dispatchers.IO) {
+
+            handleResponse(iWebRates.updateRates())
+
+            emitSource(Transformations.map(rateDao.getAllLive()) {
+                RateActionResource(RatesAction.LOAD, it)
+            })
+        }
+
     }
 
     fun observeRates() {

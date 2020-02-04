@@ -9,22 +9,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.converter_fragment.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import lt.akb.currency.R
 import lt.akb.currency.dagger.viewModel.ViewModelFactory
-import lt.akb.currency.database.Rate
 import lt.akb.currency.databinding.ConverterFragmentBinding
 import lt.akb.currency.main.bones.RateResource
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 import kotlin.reflect.KFunction
-import lt.akb.currency.main.bones.RateResource.Success as RateResourceSuccess
 
 class RatesFragment : Fragment() {
 
@@ -89,9 +83,13 @@ class RatesFragment : Fragment() {
 //                    viewModel.observeRates()
 //        })
 
-        viewModel.ratesLiveRateReadable.observe(this, Observer { source ->
+        refreshRatesLive(false)
+    }
+
+    private fun refreshRatesLive(isPeriodic: Boolean) {
+        viewModel.ratesLiveRate(isPeriodic).observe(this, Observer { source ->
             when (source) {
-                 is RateResource.Success -> {
+                is RateResource.Load -> {
                     ratesAdapter.setList(source.data)
                     startTimer()
                 }
@@ -134,7 +132,8 @@ class RatesFragment : Fragment() {
         isStop = false
         fixedRateTimer("timer", false, 1000L, 1000L) {
             if (isStop) cancel()
-            lifecycleScope.launch { withContext(Dispatchers.Main) { updateRates() } }
+            //lifecycleScope.launch { withContext(Dispatchers.Main) { updateRates() } }
+
         }
     }
 
