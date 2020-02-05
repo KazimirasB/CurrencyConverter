@@ -25,12 +25,9 @@ class ApiClient @Inject constructor(retrofit: Retrofit) : IWebRates {
     }
 
     //load currencies rates updates from remote server
-    override suspend fun updateRateResource(handleResponse: (RatesResult) -> Unit): RateResource {
+    override suspend fun updateRateResource(): RateResource {
         return try {
-            // RateResource.Success(webApiRates.getRatesUpdate())
-            val result = webApiRates.getRatesUpdate()
-            handleResponse(result)
-            RateResource.Success(result)
+            RateResource.Success(webApiRates.getRatesUpdate())
         } catch (throwable: Throwable) {
             when (throwable) {
                 is IOException -> RateResource.Error(throwable.message)

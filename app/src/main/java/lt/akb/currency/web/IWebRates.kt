@@ -10,5 +10,5 @@ interface IWebRates {
     //load currencies rates updates from remote server
     suspend fun updateRates(): RatesResult
     //
-    suspend fun updateRateResource(result: (RatesResult) -> Unit): RateResource
+    suspend fun updateRateResource(): RateResource
 }

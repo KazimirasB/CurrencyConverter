@@ -21,16 +21,12 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     lateinit var rates: List<Rate>
     lateinit var rateBase: Rate
     private var amount = BigDecimal.ONE
-    val ratesLive: LiveData<List<Rate>> = appRepository.getRatesLive()
+//    val ratesLive: LiveData<List<Rate>> = appRepository.getRatesLive()
+//
+//    val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
 
-    val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
-
-    fun ratesLiveRate(periodic: Boolean):  LiveData<RateResource> {
-        return appRepository.getRatesResourceLive(periodic)
-    }
-
-    fun refreshLiveRate():  LiveData<RateResource> {
-        return appRepository.refreshRatesResourceLive()
+    fun ratesLiveRate(isRefresh: Boolean):  LiveData<RateResource> {
+        return appRepository.getRatesResourceLive(isRefresh)
     }
 
     //Update currencies rates from web server
@@ -41,9 +37,6 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
         appRepository.repoScope.cancel()
         appRepository.disposableRate.dispose()
     }
-
-
-
 
     //calculate amount on currency item binding
     fun calculateValue(item: Rate): String {
@@ -63,9 +56,9 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
         rateBase.value = amount
     }
 
-    fun observeRates() {
-        appRepository.observeRates()
-    }
+//    fun observeRates() {
+//        appRepository.observeRates()
+//    }
 
 
     ///Actions part

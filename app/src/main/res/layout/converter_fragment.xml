@@ -3,8 +3,8 @@
 
     <data>
         <variable
-            name="viewModel"
-            type="lt.akb.currency.converter.RatesViewModel" />
+            name="fragment"
+            type="lt.akb.currency.converter.RatesFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -40,7 +40,7 @@
             android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/reload"
-            android:onClick="@{() -> viewModel.observeRates()}"
+            android:onClick="@{() -> fragment.refreshRatesLive(true)}"
             android:src="@drawable/ic_refresh"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

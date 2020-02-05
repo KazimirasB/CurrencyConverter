@@ -33,21 +33,21 @@ class RatesRepository @Inject constructor(
     lateinit var disposableRate: Disposable
 
     //load currencies from database
-    fun getRatesLive(): LiveData<List<Rate>> {
-        return liveData(Dispatchers.IO) {
-            emitSource(rateDao.getAllLive())
-        }
-    }
-
-    //load currencies from database
-    fun getRatesSourceLive(): LiveData<RateActionResource> {
-        return liveData(Dispatchers.IO) {
-            emitSource(Transformations.map(rateDao.getAllLive()) {
-                RateActionResource(RatesAction.LOAD, it)
-            }
-            )
-        }
-    }
+//    fun getRatesLive(): LiveData<List<Rate>> {
+//        return liveData(Dispatchers.IO) {
+//            emitSource(rateDao.getAllLive())
+//        }
+//    }
+//
+//    //load currencies from database
+//    fun getRatesSourceLive(): LiveData<RateActionResource> {
+//        return liveData(Dispatchers.IO) {
+//            emitSource(Transformations.map(rateDao.getAllLive()) {
+//                RateActionResource(RatesAction.LOAD, it)
+//            }
+//            )
+//        }
+//    }
 
     //    suspend fun getSomething(): LiveData<Resource<Something>> = livedata {
 //        emit(Resource.Loading())
@@ -59,17 +59,19 @@ class RatesRepository @Inject constructor(
 //        }
 //    }
 //
-    fun getRatesResourceLive(isPeriodic: Boolean): LiveData<RateResource> =
+    fun getRatesResourceLive(isRefresh: Boolean): LiveData<RateResource> =
         liveData(Dispatchers.IO) {
 
             if (isFetch()) {
-                emit(RateResource.Progress(true))
 
-                when (val resource = iWebRates.updateRateResource{result -> handleResponse(result)}) {
+                if (!isRefresh) emit(RateResource.Progress(true))
+
+                when (val resource = iWebRates.updateRateResource()) {
                     is RateResource.Success -> {
-                        handleResponse(resource.result)
+                        saveResponse(resource.result)
                         emitSource(Transformations.map(rateDao.getAllLive()) {
-                            RateResource.Load(it)
+                            if (isRefresh) RateResource.Refresh(it)
+                            else RateResource.Load(it)
                         })
                     }
                     else -> emit(resource)
@@ -78,29 +80,22 @@ class RatesRepository @Inject constructor(
                 emitSource(Transformations.map(rateDao.getAllLive()) {
                     RateResource.Load(it)
                 })
-      }
+        }
 
     fun isFetch() = true
 
-
-    fun refreshRatesResourceLive(): LiveData<RateResource> =
-        liveData(Dispatchers.IO) {
-
-                emit(RateResource.Progress(true))
-
-                when (val resource = iWebRates.updateRateResource{result -> handleResponse(result)}) {
-
-                    is RateResource.Success -> {
-                        handleResponse(resource.result)
-                        emitSource(Transformations.map(rateDao.getAllLive()) {
-                            RateResource.Refresh(it)
-                        })
-                    }
-                    else -> emit(resource)
-                }
-
+    //Save currencies from web server into database, update display name and country code
+    private fun saveResponse(result: RatesResult) {
+        val rates = ArrayList<Rate>()
+        for (key in result.rates.keys) {
+            val currency = Currency.getInstance(key)
+            val flagUrl = settings.getImageUrl(key)
+            val rate =
+                Rate(key, flagUrl, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
+            rates.add(rate)
         }
-
+        if (rates.isNotEmpty()) addRates(rates)
+    }
 
     //updates rates of currencies from remote server
     fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
@@ -116,61 +111,49 @@ class RatesRepository @Inject constructor(
     }
 
 
-    fun observeRatesLive(): LiveData<RateActionResource> {
-        return liveData(Dispatchers.IO) {
+//    fun observeRatesLive(): LiveData<RateActionResource> {
+//        return liveData(Dispatchers.IO) {
+//
+//            saveResponse(iWebRates.updateRates())
+//
+//            emitSource(Transformations.map(rateDao.getAllLive()) {
+//                RateActionResource(RatesAction.LOAD, it)
+//            })
+//        }
+//
+//    }
 
-            handleResponse(iWebRates.updateRates())
+//    fun observeRates() {
+//        disposableRate =
+//            iWebRates.observeRates().subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnSubscribe {
+//                    //                    progressBar.visibility = View.VISIBLE
+////                    reloadImageButton.visibility = View.GONE
+//                }
+//                .doOnSuccess {
+//                    //progressBar.visibility = View.GONE
+//                }
+//                .doOnError {
+//                    //                    progressBar.visibility = View.GONE
+////                    reloadImageButton.visibility = View.VISIBLE
+//                }
+//                .subscribe(this::saveResponse, this::handelError)
+//
+//    }
+//
+//    private fun handelError(t: Throwable?) {
+//        //     Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
+//        t?.let { throw it }
+//    }
 
-            emitSource(Transformations.map(rateDao.getAllLive()) {
-                RateActionResource(RatesAction.LOAD, it)
-            })
-        }
-
-    }
-
-    fun observeRates() {
-        disposableRate =
-            iWebRates.observeRates().subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    //                    progressBar.visibility = View.VISIBLE
-//                    reloadImageButton.visibility = View.GONE
-                }
-                .doOnSuccess {
-                    //progressBar.visibility = View.GONE
-                }
-                .doOnError {
-                    //                    progressBar.visibility = View.GONE
-//                    reloadImageButton.visibility = View.VISIBLE
-                }
-                .subscribe(this::handleResponse, this::handelError)
-
-    }
-
-    private fun handelError(t: Throwable?) {
-        //     Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
-        t?.let { throw it }
-    }
-
-    //Save currencies from web server into database, update display name and country code
-    private fun handleResponse(result: RatesResult){
-        val rates = ArrayList<Rate>()
-        for (key in result.rates.keys) {
-            val currency = Currency.getInstance(key)
-            val flagUrl = settings.getImageUrl(key)
-            val rate =
-                Rate(key, flagUrl, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
-            rates.add(rate)
-        }
-        if (rates.isNotEmpty()) addRates(rates)
-    }
 
     // Add list of currencies into database
     private fun addRates(items: List<Rate>) {
         repoScope.launch { rateDao.insertAll(items) }
     }
 
-    //actionspart
+    //actions part
 //
 //    fun loadRates(): Observable<RateActionResource> {
 //

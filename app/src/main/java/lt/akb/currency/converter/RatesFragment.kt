@@ -5,13 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.converter_fragment.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import lt.akb.currency.R
 import lt.akb.currency.dagger.viewModel.ViewModelFactory
 import lt.akb.currency.databinding.ConverterFragmentBinding
@@ -26,11 +32,11 @@ class RatesFragment : Fragment() {
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var binding: ConverterFragmentBinding
     private var isStop: Boolean = false
-    private val actionMap = hashMapOf<RatesAction, KFunction<Any>>()
+  //  private val actionMap = hashMapOf<RatesAction, KFunction<Any>>()
 
 
     private val viewModel: RatesViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(RatesViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(RatesViewModel::class.java)
     }
 
     private val ratesAdapter: RatesAdapter by lazy {
@@ -41,25 +47,25 @@ class RatesFragment : Fragment() {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
     }
+//
+//    private fun addRates() {
+//        if (viewModel.rates.size > 1) {
+//            ratesAdapter.setList(viewModel.rates)
+//            startTimer()
+//        } else viewModel.observeRates()
+//    }
 
-    private fun addRates() {
-        if (viewModel.rates.size > 1) {
-            ratesAdapter.setList(viewModel.rates)
-            startTimer()
-        } else viewModel.observeRates()
-    }
+//    private fun refreshRates() {
+//        if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
+//    }
+//
+//    private fun crateActions() {
+//        actionMap[RatesAction.LOAD] = this::addRates
+//        actionMap[RatesAction.REFRESH] = this::refreshRates
+//    }
 
-    private fun refreshRates() {
-        if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
-    }
-
-    private fun crateActions() {
-        actionMap[RatesAction.LOAD] = this::addRates
-        actionMap[RatesAction.REFRESH] = this::refreshRates
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
 
 //        crateActions()
         //Observe currency rates from database, then starts periodic updates
@@ -83,19 +89,10 @@ class RatesFragment : Fragment() {
 //                    viewModel.observeRates()
 //        })
 
-        refreshRatesLive(false)
-    }
 
-    private fun refreshRatesLive(isPeriodic: Boolean) {
-        viewModel.ratesLiveRate(isPeriodic).observe(this, Observer { source ->
-            when (source) {
-                is RateResource.Load -> {
-                    ratesAdapter.setList(source.data)
-                    startTimer()
-                }
-            }
-        })
-    }
+//    }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -117,9 +114,11 @@ class RatesFragment : Fragment() {
             adapter = ratesAdapter
             layoutManager = LinearLayoutManager(activity)
         }
-        binding.viewModel = viewModel
+        binding.fragment = this
 
-        viewModel.observeRates()
+        refreshRatesLive(false)
+
+   //     viewModel.observeRates()
     }
 
     override fun onDestroy() {
@@ -127,24 +126,55 @@ class RatesFragment : Fragment() {
         isStop = true
     }
 
+    fun refreshRatesLive(isRefresh: Boolean) {
+        viewModel.ratesLiveRate(isRefresh).observe(viewLifecycleOwner, Observer { source ->
+            when (source) {
+                is RateResource.Progress -> {
+                    progressBar.visibility = View.VISIBLE
+                }
+                is RateResource.Load -> {
+                    ratesAdapter.setList(source.data)
+                    progressBar.visibility = View.GONE
+                    reloadImageButton.visibility = View.GONE
+                    startTimer()
+                }
+                is RateResource.Refresh -> {
+                    progressBar.visibility = View.GONE
+                    reloadImageButton.visibility = View.GONE
+                    ratesAdapter.currencyRates = source.data
+                    if (!ratesRecyclerView.isAnimating)
+                        ratesAdapter.refreshRates(1)
+                }
+                is RateResource.Error -> {
+                    progressBar.visibility = View.GONE
+                    reloadImageButton.visibility = View.VISIBLE
+                    Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
+                    source.message?.let { throw Throwable(source.message) }
+                }
+            }
+        })
+    }
+
     //Run periodic rates update every 1 second
     private fun startTimer() {
         isStop = false
         fixedRateTimer("timer", false, 1000L, 1000L) {
             if (isStop) cancel()
-            //lifecycleScope.launch { withContext(Dispatchers.Main) { updateRates() } }
+            lifecycleScope.launch { withContext(Dispatchers.Main) {  refreshRatesLive(true)
+            //    updateRates()
+            } }
 
         }
     }
 
-    //Updated currency rates
-    private fun updateRates() {
-        viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
-            result?.let {
-                if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
-            }
-        })
-    }
+//    //Updated currency rates
+//    private fun updateRates() {
+//        viewModel.updateRates(ratesAdapter.currencyRates).observe(this, Observer { result ->
+//            result?.let {
+//                if (!ratesRecyclerView.isAnimating) ratesAdapter.refreshRates(1)
+//            }
+//        })
+//    }
 
 
 }
