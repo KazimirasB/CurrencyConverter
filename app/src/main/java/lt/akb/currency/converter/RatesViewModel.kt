@@ -26,7 +26,9 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
 //    val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
 
     fun ratesLiveRate(isRefresh: Boolean):  LiveData<RateResource> {
-        return appRepository.getRatesResourceLive(isRefresh)
+      //  return appRepository.getRatesResourceLive(isRefresh)
+        return appRepository.boundResourcesLive()
+
     }
 
     //Update currencies rates from web server
@@ -35,7 +37,7 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     override fun onCleared() {
         super.onCleared()
         appRepository.repoScope.cancel()
-        appRepository.disposableRate.dispose()
+       // appRepository.disposableRate.dispose()
     }
 
     //calculate amount on currency item binding

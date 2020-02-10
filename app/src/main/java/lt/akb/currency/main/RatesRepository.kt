@@ -2,17 +2,16 @@ package lt.akb.currency.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import lt.akb.currency.converter.RateActionResource
-import lt.akb.currency.converter.RatesAction
+import kotlinx.coroutines.withContext
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
+import lt.akb.currency.main.bones.NetworkBoundResource
 import lt.akb.currency.main.bones.RateResource
 import lt.akb.currency.web.IWebRates
 import lt.akb.currency.web.RatesResult
@@ -21,6 +20,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.collections.ArrayList
+import kotlin.concurrent.fixedRateTimer
 
 @Singleton
 class RatesRepository @Inject constructor(
@@ -30,7 +30,7 @@ class RatesRepository @Inject constructor(
     private val settings: AppSettings
 ) {
 
-    lateinit var disposableRate: Disposable
+//    lateinit var disposableRate: Disposable
 
     //load currencies from database
 //    fun getRatesLive(): LiveData<List<Rate>> {
@@ -59,6 +59,39 @@ class RatesRepository @Inject constructor(
 //        }
 //    }
 //
+    fun boundResourcesLive(): LiveData<RateResource>  {
+            return object : NetworkBoundResource<RateResource>() {
+
+                override suspend fun saveCallResult(webResult: RateResource): RateResource {
+                    return when (webResult) {
+                        is RateResource.Success -> {
+                            saveResponse(webResult.result)
+                            loadFromDb()
+                        }
+                        is RateResource.Error -> webResult
+
+                        else -> RateResource.Error("Nothing")
+                    }
+                }
+
+                override fun shouldFetch(): Boolean = true
+
+                override suspend fun loadFromDb(): RateResource =
+                    RateResource.Load(rateDao.getAll())
+
+                override suspend fun webRequest(): RateResource = iWebRates.updateRateResource()
+
+                override fun showProgress(): RateResource = RateResource.Progress(true)
+
+                override suspend fun periodicJob(): RateResource {
+
+                    return saveCallResult(webRequest())
+                }
+
+            }.asLiveData()
+        }
+
+
     fun getRatesResourceLive(isRefresh: Boolean): LiveData<RateResource> =
         liveData(Dispatchers.IO) {
 
@@ -76,11 +109,13 @@ class RatesRepository @Inject constructor(
                     }
                     else -> emit(resource)
                 }
-            } else
-                emitSource(Transformations.map(rateDao.getAllLive()) {
-                    RateResource.Load(it)
-                })
+            }
+            else {
+                val rates = rateDao.getAll()
+                emit(RateResource.Load(rates))
+            }
         }
+
 
     fun isFetch() = true
 
