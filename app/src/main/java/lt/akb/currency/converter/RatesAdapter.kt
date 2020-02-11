@@ -9,9 +9,11 @@ import android.widget.ImageView
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.databinding.BindingAdapter
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import kotlinx.coroutines.Dispatchers
 import lt.akb.currency.R
 import lt.akb.currency.database.Rate
 import java.math.BigDecimal
@@ -22,7 +24,7 @@ class RatesAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var recyclerView: RecyclerView
-    var currencyRates = emptyList<Rate>()
+    var rates = emptyList<Rate>()
     private val factory = RateHolderFactory()
 
     //Register types of list items Holders
@@ -46,7 +48,7 @@ class RatesAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        factory.onBindViewHolder(holder, currencyRates[position])
+        factory.onBindViewHolder(holder, rates[position])
     }
 
     override fun onBindViewHolder(
@@ -54,16 +56,16 @@ class RatesAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        factory.onBindViewHolder(holder, currencyRates[position], payloads)
+        factory.onBindViewHolder(holder, rates[position], payloads)
     }
 
     override fun getItemCount(): Int {
-        return currencyRates.size
+        return rates.size
     }
 
     //update list of currencies from database
     fun setList(currencyRates: List<Rate>) {
-        this.currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
+        this.rates = currencyRates.sortedWith(compareByDescending { it.orderKey })
         viewModel.setBaseRate(currencyRates[0])
         notifyDataSetChanged()
     }
@@ -80,10 +82,10 @@ class RatesAdapter(
 
     //Update base currency on click list item
     fun setBaseRate(rate: Rate) {
-        val oldPosition = currencyRates.indexOf(rate)
+        val oldPosition = rates.indexOf(rate)
         rate.orderKey = viewModel.rateBase.orderKey + 1
         viewModel.setBaseRate(rate)
-        currencyRates = currencyRates.sortedWith(compareByDescending { it.orderKey })
+        rates = rates.sortedWith(compareByDescending { it.orderKey })
         notifyItemMoved(oldPosition, 0)
         Handler().post {
             recyclerView.scrollToPosition(0)
@@ -98,9 +100,19 @@ class RatesAdapter(
     //Refresh currency amount values only
     fun refreshRates(positionStart: Int) {
         Handler().post {
-            notifyItemRangeChanged(positionStart, currencyRates.size, 0)
+            notifyItemRangeChanged(positionStart, rates.size, 0)
         }
     }
+
+    fun updateRates(ratesMap: HashMap<String, Double>){
+        for (i in rates.indices) {
+            val currencyRate = rates[i]
+            ratesMap[currencyRate.currency]?.let {
+                currencyRate.currencyRate = BigDecimal(ratesMap[currencyRate.currency]!!)
+            }
+        }
+    }
+
 }
 
 //Get currency flag from web server and make it round

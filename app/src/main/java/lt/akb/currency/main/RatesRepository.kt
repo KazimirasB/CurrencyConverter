@@ -2,13 +2,10 @@ package lt.akb.currency.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
-import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
 import lt.akb.currency.main.bones.NetworkBoundResource
@@ -20,7 +17,6 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.collections.ArrayList
-import kotlin.concurrent.fixedRateTimer
 
 @Singleton
 class RatesRepository @Inject constructor(
@@ -59,37 +55,37 @@ class RatesRepository @Inject constructor(
 //        }
 //    }
 //
-    fun boundResourcesLive(): LiveData<RateResource>  {
-            return object : NetworkBoundResource<RateResource>() {
+    fun boundResourcesLive(isRefresh: Boolean): LiveData<RateResource> {
+        return object : NetworkBoundResource<RateResource>() {
 
-                override suspend fun saveCallResult(webResult: RateResource): RateResource {
-                    return when (webResult) {
-                        is RateResource.Success -> {
-                            saveResponse(webResult.result)
-                            loadFromDb()
-                        }
-                        is RateResource.Error -> webResult
-
-                        else -> RateResource.Error("Nothing")
+            override suspend fun saveCallResult(webResult: RateResource): RateResource {
+                return when (webResult) {
+                    is RateResource.Success -> {
+                        saveResponse(webResult.result)
+                        if (!isRefresh) loadFromDb()
+                        else RateResource.Refresh(webResult.result.rates)
                     }
+
+                    is RateResource.Error -> webResult
+
+                    else -> RateResource.Error("Nothing")
                 }
+            }
 
-                override fun shouldFetch(): Boolean = true
+            override fun shouldFetch(): Boolean = !isRefresh
 
-                override suspend fun loadFromDb(): RateResource =
-                    RateResource.Load(rateDao.getAll())
+            override suspend fun loadFromDb(): RateResource =
+                RateResource.Load(rateDao.getAll())
 
-                override suspend fun webRequest(): RateResource = iWebRates.updateRateResource()
+            //TODO perduoti LOAF RBA REFRESH kad griztu atatinkamas jei ok
+            override suspend fun webRequest(): RateResource = iWebRates.updateRateResource()
 
-                override fun showProgress(): RateResource = RateResource.Progress(true)
+            override fun showProgress(): RateResource = RateResource.Progress(true)
 
-                override suspend fun periodicJob(): RateResource {
+            override suspend fun periodicJob(): RateResource = saveCallResult(webRequest())
 
-                    return saveCallResult(webRequest())
-                }
-
-            }.asLiveData()
-        }
+        }.asLiveData()
+    }
 
 
     fun getRatesResourceLive(isRefresh: Boolean): LiveData<RateResource> =
@@ -103,14 +99,14 @@ class RatesRepository @Inject constructor(
                     is RateResource.Success -> {
                         saveResponse(resource.result)
                         emitSource(Transformations.map(rateDao.getAllLive()) {
-                            if (isRefresh) RateResource.Refresh(it)
-                            else RateResource.Load(it)
+                            //                            if (isRefresh) RateResource.Refresh(it.)
+//                            else
+                            RateResource.Load(it)
                         })
                     }
                     else -> emit(resource)
                 }
-            }
-            else {
+            } else {
                 val rates = rateDao.getAll()
                 emit(RateResource.Load(rates))
             }

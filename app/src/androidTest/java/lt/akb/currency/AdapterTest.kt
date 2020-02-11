@@ -35,7 +35,7 @@ class AdapterTest {
 
         val position = 5
         val recyclerView = rule.activity.ratesRecyclerView
-        val item = (recyclerView.adapter as RatesAdapter).currencyRates[position]
+        val item = (recyclerView.adapter as RatesAdapter).rates[position]
 
         onView(withId(R.id.ratesRecyclerView)).perform(
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(position, click())

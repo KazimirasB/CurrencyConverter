@@ -10,7 +10,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.AndroidSupportInjection
@@ -24,7 +23,6 @@ import lt.akb.currency.databinding.ConverterFragmentBinding
 import lt.akb.currency.main.bones.RateResource
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
-import kotlin.reflect.KFunction
 
 class RatesFragment : Fragment() {
 
@@ -126,6 +124,8 @@ class RatesFragment : Fragment() {
         isStop = true
     }
 
+    //TODO visibility change in xml bind
+
     fun refreshRatesLive(isRefresh: Boolean) {
         viewModel.ratesLiveRate(isRefresh).observe(viewLifecycleOwner, Observer { source ->
             when (source) {
@@ -141,7 +141,7 @@ class RatesFragment : Fragment() {
                 is RateResource.Refresh -> {
                     progressBar.visibility = View.GONE
                     reloadImageButton.visibility = View.GONE
-                    ratesAdapter.currencyRates = source.data
+                    ratesAdapter.updateRates(source.map)
                     if (!ratesRecyclerView.isAnimating)
                         ratesAdapter.refreshRates(1)
                 }

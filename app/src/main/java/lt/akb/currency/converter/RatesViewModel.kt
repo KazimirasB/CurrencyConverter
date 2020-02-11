@@ -18,7 +18,7 @@ fun Rate.calculateAmount(rateBase: Rate, amount: BigDecimal) : BigDecimal =  cur
 
 class RatesViewModel @Inject constructor(private  val appRepository: RatesRepository): ViewModel() {
 
-    lateinit var rates: List<Rate>
+    var rates: List<Rate> = emptyList()
     lateinit var rateBase: Rate
     private var amount = BigDecimal.ONE
 //    val ratesLive: LiveData<List<Rate>> = appRepository.getRatesLive()
