@@ -40,7 +40,7 @@
             android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/reload"
-            android:onClick="@{() -> fragment.refreshRatesLive(true)}"
+            android:onClick="@{() -> fragment.refreshRatesLive()}"
             android:src="@drawable/ic_refresh"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -26,6 +26,62 @@ class RatesRepository @Inject constructor(
     private val settings: AppSettings
 ) {
 
+    var stopPeriodic: Boolean = false
+
+    fun boundResourcesLive(): LiveData<RateResource> {
+        return object : NetworkBoundResource<RateResource>() {
+
+            override suspend fun saveCallResult(webResult: RateResource): RateResource {
+                return when (webResult) {
+                    is RateResource.Success -> {
+                        saveResponse(webResult.result)
+                        loadFromDb()
+                    }
+                    is RateResource.Error -> webResult
+                    else -> RateResource.Error("Nothing")
+                }
+            }
+
+            override fun shouldFetch(): Boolean = true
+
+            override suspend fun loadFromDb(): RateResource =
+                RateResource.Load(rateDao.getAll())
+
+            override suspend fun webRequest(): RateResource = iWebRates.updateRateResource()
+
+            override fun showProgress(): RateResource = RateResource.Progress(true)
+
+            override suspend fun periodicJob(): RateResource {
+                return when (val webResult = webRequest()) {
+                    is RateResource.Success -> RateResource.Refresh(webResult.result.rates)
+                    else -> saveCallResult(webResult)
+                }
+            }
+
+            override fun runPeriodic(): Boolean = !stopPeriodic
+        }.asLiveData()
+    }
+
+    //Save currencies from web server into database, update display name and country code
+    private fun saveResponse(result: RatesResult) {
+        val rates = ArrayList<Rate>()
+        for (key in result.rates.keys) {
+            val currency = Currency.getInstance(key)
+            val flagUrl = settings.getImageUrl(key)
+            val rate =
+                Rate(key, flagUrl, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
+            rates.add(rate)
+        }
+        if (rates.isNotEmpty()) addRates(rates)
+    }
+
+    // Add list of currencies into database
+    private fun addRates(items: List<Rate>) {
+        repoScope.launch { rateDao.insertAll(items) }
+    }
+
+
+
 //    lateinit var disposableRate: Disposable
 
     //load currencies from database
@@ -55,91 +111,47 @@ class RatesRepository @Inject constructor(
 //        }
 //    }
 //
-    fun boundResourcesLive(isRefresh: Boolean): LiveData<RateResource> {
-        return object : NetworkBoundResource<RateResource>() {
 
-            override suspend fun saveCallResult(webResult: RateResource): RateResource {
-                return when (webResult) {
-                    is RateResource.Success -> {
-                        saveResponse(webResult.result)
-                        if (!isRefresh) loadFromDb()
-                        else RateResource.Refresh(webResult.result.rates)
-                    }
+//    fun getRatesResourceLive(isRefresh: Boolean): LiveData<RateResource> =
+//        liveData(Dispatchers.IO) {
+//
+//            if (isFetch()) {
+//
+//                if (!isRefresh) emit(RateResource.Progress(true))
+//
+//                when (val resource = iWebRates.updateRateResource()) {
+//                    is RateResource.Success -> {
+//                        saveResponse(resource.result)
+//                        emitSource(Transformations.map(rateDao.getAllLive()) {
+//                            //                            if (isRefresh) RateResource.Refresh(it.)
+////                            else
+//                            RateResource.Load(it)
+//                        })
+//                    }
+//                    else -> emit(resource)
+//                }
+//            } else {
+//                val rates = rateDao.getAll()
+//                emit(RateResource.Load(rates))
+//            }
+//        }
+//
 
-                    is RateResource.Error -> webResult
-
-                    else -> RateResource.Error("Nothing")
-                }
-            }
-
-            override fun shouldFetch(): Boolean = !isRefresh
-
-            override suspend fun loadFromDb(): RateResource =
-                RateResource.Load(rateDao.getAll())
-
-            //TODO perduoti LOAF RBA REFRESH kad griztu atatinkamas jei ok
-            override suspend fun webRequest(): RateResource = iWebRates.updateRateResource()
-
-            override fun showProgress(): RateResource = RateResource.Progress(true)
-
-            override suspend fun periodicJob(): RateResource = saveCallResult(webRequest())
-
-        }.asLiveData()
-    }
-
-
-    fun getRatesResourceLive(isRefresh: Boolean): LiveData<RateResource> =
-        liveData(Dispatchers.IO) {
-
-            if (isFetch()) {
-
-                if (!isRefresh) emit(RateResource.Progress(true))
-
-                when (val resource = iWebRates.updateRateResource()) {
-                    is RateResource.Success -> {
-                        saveResponse(resource.result)
-                        emitSource(Transformations.map(rateDao.getAllLive()) {
-                            //                            if (isRefresh) RateResource.Refresh(it.)
-//                            else
-                            RateResource.Load(it)
-                        })
-                    }
-                    else -> emit(resource)
-                }
-            } else {
-                val rates = rateDao.getAll()
-                emit(RateResource.Load(rates))
-            }
-        }
-
-
-    fun isFetch() = true
-
-    //Save currencies from web server into database, update display name and country code
-    private fun saveResponse(result: RatesResult) {
-        val rates = ArrayList<Rate>()
-        for (key in result.rates.keys) {
-            val currency = Currency.getInstance(key)
-            val flagUrl = settings.getImageUrl(key)
-            val rate =
-                Rate(key, flagUrl, currency.displayName, result.rates[key]!!.toBigDecimal(), 0)
-            rates.add(rate)
-        }
-        if (rates.isNotEmpty()) addRates(rates)
-    }
-
-    //updates rates of currencies from remote server
-    fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
-        val response = iWebRates.updateRates()
-        val ratesMap = response.rates
-        for (i in currencyRates.indices) {
-            val currencyRate = currencyRates[i]
-            ratesMap[currencyRate.currency]?.let {
-                currencyRate.currencyRate = BigDecimal(ratesMap[currencyRate.currency]!!)
-            }
-            emit(ratesMap)
-        }
-    }
+//    private fun isFetch() = true
+//
+//
+//    //updates rates of currencies from remote server
+//    fun getRatesUpdate(currencyRates: List<Rate>) = liveData(Dispatchers.IO) {
+//        val response = iWebRates.updateRates()
+//        val ratesMap = response.rates
+//        for (i in currencyRates.indices) {
+//            val currencyRate = currencyRates[i]
+//            ratesMap[currencyRate.currency]?.let {
+//                currencyRate.currencyRate = BigDecimal(ratesMap[currencyRate.currency]!!)
+//            }
+//            emit(ratesMap)
+//        }
+//    }
 
 
 //    fun observeRatesLive(): LiveData<RateActionResource> {
@@ -179,10 +191,6 @@ class RatesRepository @Inject constructor(
 //    }
 
 
-    // Add list of currencies into database
-    private fun addRates(items: List<Rate>) {
-        repoScope.launch { rateDao.insertAll(items) }
-    }
 
     //actions part
 //

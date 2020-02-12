@@ -25,7 +25,7 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
 //
 //    val ratesLiveSource:  LiveData<RateActionResource> = appRepository.getRatesSourceLive()
 
-    fun ratesLiveRate(isRefresh: Boolean):  LiveData<RateResource> {
+    fun ratesLiveRate():  LiveData<RateResource> {
       //  return appRepository.getRatesResourceLive(isRefresh)
         return appRepository.boundResourcesLive()
 
@@ -37,6 +37,7 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     override fun onCleared() {
         super.onCleared()
         appRepository.repoScope.cancel()
+        appRepository.stopPeriodic = true
        // appRepository.disposableRate.dispose()
     }
 
