@@ -1,10 +1,7 @@
 package lt.akb.currency.main
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
@@ -12,7 +9,6 @@ import lt.akb.currency.main.bones.NetworkBoundResource
 import lt.akb.currency.main.bones.RateResource
 import lt.akb.currency.web.IWebRates
 import lt.akb.currency.web.RatesResult
-import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
