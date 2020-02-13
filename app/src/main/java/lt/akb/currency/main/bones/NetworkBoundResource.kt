@@ -1,5 +1,7 @@
 package lt.akb.currency.main.bones
 
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.Dispatchers
@@ -9,26 +11,29 @@ import kotlinx.coroutines.delay
 // RequestType: Type for the API response.
 abstract class NetworkBoundResource<ResourceType> {
 
-    //@MainThread
+    @MainThread
     protected abstract suspend fun webRequest(): ResourceType
 
     // Called to save the result of the API response into the database
-    // @WorkerThread
+    @WorkerThread
     protected abstract suspend fun saveCallResult(webResult: ResourceType): ResourceType
 
     // Called with the data in the database to decide whether to fetch
     // potentially updated data from the network.
-    // @MainThread
+    @MainThread
     protected abstract fun shouldFetch(): Boolean
 
+    @WorkerThread
     protected abstract fun showProgress(): ResourceType
 
+    @MainThread
     protected abstract suspend fun periodicJob(): ResourceType
 
+    @WorkerThread
     protected abstract fun runPeriodic(): Boolean
 
     // Called to get the cached data from the database.
-    //  @MainThread
+    @MainThread
     protected abstract suspend fun loadFromDb(): ResourceType
 
     fun asLiveData(): LiveData<ResourceType> = liveData(Dispatchers.IO) {

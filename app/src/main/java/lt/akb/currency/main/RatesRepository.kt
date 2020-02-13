@@ -3,6 +3,7 @@ package lt.akb.currency.main
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import lt.akb.currency.R
 import lt.akb.currency.database.Rate
 import lt.akb.currency.database.RateDao
 import lt.akb.currency.main.bones.NetworkBoundResource
@@ -34,7 +35,8 @@ class RatesRepository @Inject constructor(
                         loadFromDb()
                     }
                     is RateResource.Error -> webResult
-                    else -> RateResource.Error("Nothing")
+                    is RateResource.ErrorRes -> webResult
+                    else -> RateResource.ErrorRes(R.string.error_message)
                 }
             }
 

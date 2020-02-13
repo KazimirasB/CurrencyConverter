@@ -9,6 +9,7 @@ sealed class RateResource {
     data class Progress(val isProceed: Boolean) : RateResource()
     data class Error(val message: String?) : RateResource()
     data class Success(val result: RatesResult) : RateResource()
+    data class ErrorRes(val errorRes: Int) : RateResource()
 }
 
 

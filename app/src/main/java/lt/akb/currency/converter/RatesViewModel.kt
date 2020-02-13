@@ -32,7 +32,7 @@ class RatesViewModel @Inject constructor(private  val appRepository: RatesReposi
     }
 
     //Update currencies rates from web server
-    fun updateRates(currencyRates: List<Rate>) = appRepository.getRatesUpdate(currencyRates)
+    //fun updateRates(currencyRates: List<Rate>) = appRepository.getRatesUpdate(currencyRates)
 
     override fun onCleared() {
         super.onCleared()

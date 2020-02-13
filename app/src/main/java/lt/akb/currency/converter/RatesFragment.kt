@@ -60,6 +60,7 @@ class RatesFragment : Fragment() {
             }
             binding.fragment = this
 
+
             refreshRatesLive()
         }
 
@@ -74,7 +75,6 @@ class RatesFragment : Fragment() {
                         ratesAdapter.setList(source.data)
                         progressBar.visibility = View.GONE
                         reloadImageButton.visibility = View.GONE
-                        // startTimer()
                     }
                     is RateResource.Refresh -> {
                         progressBar.visibility = View.GONE
@@ -86,8 +86,12 @@ class RatesFragment : Fragment() {
                     is RateResource.Error -> {
                         progressBar.visibility = View.GONE
                         reloadImageButton.visibility = View.VISIBLE
-                        Toast.makeText(context, R.string.error_message, Toast.LENGTH_LONG).show()
-                        source.message?.let { throw Throwable(source.message) }
+                        Toast.makeText(context, source.message, Toast.LENGTH_LONG).show()
+                     }
+                    is RateResource.ErrorRes -> {
+                        progressBar.visibility = View.GONE
+                        reloadImageButton.visibility = View.VISIBLE
+                        Toast.makeText(context, source.errorRes, Toast.LENGTH_LONG).show()
                     }
                 }
             })
